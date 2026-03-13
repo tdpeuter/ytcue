@@ -31,6 +31,13 @@ def process_input(lines: list, format_guess: str, extract_feat: bool) -> Mix:
         )
         tracks.append(Track(start_time_str=timestamp, artist=artist, title=title, label=label))
 
+    # Dot-stripping heuristic: if most tracks end with a dot, remove it.
+    dot_count = sum(1 for t in tracks if t.title.endswith("."))
+    if tracks and dot_count > len(tracks) * 0.8:
+        for t in tracks:
+            if t.title.endswith("."):
+                t.title = t.title[:-1].strip()
+
     return Mix(tracks=tracks)
 
 

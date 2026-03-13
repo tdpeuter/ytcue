@@ -25,19 +25,23 @@ def test_parse_lines_with_brackets():
     assert parsed[1] == ("01:30:45", "Track 2")
 
 
-def test_parse_lines_pipe_format():
-    """Test that the pipe separator between timestamp and track text is handled."""
+def test_parse_lines_separators():
+    """Test that various separators between timestamp and track text are handled."""
     lines = [
         "00:00 | ASC - Vapour Trail",
-        "06:48 | Eusebeia - More Than Lucky",
-        "1:00:14 | Pixl - Empath",
+        "06:48 - Eusebeia - More Than Lucky",
+        "1:00:14 – Pixl - Empath",
+        "1:02:33 — Papa Shanti - Universal",
+        "01:23:45 : Some Track",
     ]
     parsed = parse_lines(lines)
 
-    assert len(parsed) == 3
+    assert len(parsed) == 5
     assert parsed[0] == ("00:00", "ASC - Vapour Trail")
     assert parsed[1] == ("06:48", "Eusebeia - More Than Lucky")
     assert parsed[2] == ("01:00:14", "Pixl - Empath")
+    assert parsed[3] == ("01:02:33", "Papa Shanti - Universal")
+    assert parsed[4] == ("01:23:45", "Some Track")
 
 
 def test_parse_lines_with_labels_extraction():

@@ -114,6 +114,10 @@ def test_split_artist_title():
         "Title Remix",
     )
 
+    # Long dash support
+    assert split_track_string("Artist – Title", "artist-title") == ("Artist", "Title")
+    assert split_track_string("Artist — Title", "artist-title") == ("Artist", "Title")
+
 
 def test_extract_feat_artists():
     assert extract_feat_artists(

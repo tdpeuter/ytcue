@@ -1,9 +1,16 @@
 import re
 from typing import List, Tuple, Optional
 
+# Common separators between timestamp and track info
+TIMESTAMP_SEPARATORS = r"[\-\–\—\―\:\|\s]+"
+
 # Matches HH:MM:SS, MM:SS, HH.MM.SS, MM.SS at the beginning of the line
-# Allows an optional pipe '|' separator after the timestamp
-TIMESTAMP_PATTERN = re.compile(r"^\[?(?:(\d{1,2})[:.])?\s*(\d{1,2})[:.]\s*(\d{2})\]?\s*\|?\s+(.*)$")
+# Followed by optional separators and then the track text
+TIMESTAMP_PATTERN = re.compile(
+    r"^\[?(?:(\d{1,2})[:.])?\s*(\d{1,2})[:.]\s*(\d{2})\]?"  # Timestamp
+    rf"(?:{TIMESTAMP_SEPARATORS})?"                        # Optional separator
+    r"(.*)$"                                                # Remaining text
+)
 
 
 def parse_lines(lines: List[str]) -> List[Tuple[str, str]]:

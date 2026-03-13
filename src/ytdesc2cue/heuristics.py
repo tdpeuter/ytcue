@@ -1,5 +1,8 @@
 import re
-from typing import Tuple
+from typing import Tuple, List
+
+# Standard separators for splitting track into Artist - Title
+DASH_PATTERN = r"\s+[\-\–\—\―]\s+"
 
 
 def extract_feat_artists(
@@ -153,10 +156,10 @@ def split_track_string(
         # Fallback to hyphen if no 'by' was found in this specific line
         if len(parts) == 1:
             used_separator = "-"
-            parts = re.split(r"\s+-\s+", raw_text)
+            parts = re.split(DASH_PATTERN, raw_text)
     else:
         used_separator = "-"
-        parts = re.split(r"\s+-\s+", raw_text)
+        parts = re.split(DASH_PATTERN, raw_text)
 
     artist, title = "", ""
 

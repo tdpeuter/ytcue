@@ -12,13 +12,14 @@ The parser recognizes timestamps in the following formats at the beginning of a 
 - `MM.SS` or `HH.MM.SS` (dots)
 - `[MM:SS]` or `[HH:MM:SS]` (bracketed)
 
-### Pipe Separator (`|`)
-Some YouTube descriptions use a pipe character `|` between the timestamp and the track info:
+### Timestamp Separators
+Some YouTube descriptions use a separator character between the timestamp and the track info:
 ```
 00:00 | ASC - Vapour Trail
-06:48 | Eusebeia - More Than Lucky
+06:48 - Eusebeia - More Than Lucky
+1:00:14 – Pixl - Empath
 ```
-The parser handles this transparently — the pipe is consumed as part of the timestamp delimiter and never reaches the track splitting heuristics.
+The parser handles various characters as separators transparently, including hyphens `-`, en-dashes `–`, em-dashes `—`, colons `:`, and pipes `|`. These are consumed during the timestamp parsing phase and never reach the track splitting heuristics.
 
 ### Label/Publisher Extraction
 Some descriptions include the record label on the line immediately following each track:
@@ -68,6 +69,12 @@ To prevent this, `ytdesc2cue` performs a case-insensitive, global extraction of 
 Additionally, after a string is split, the program performs one last pass on the isolated **Artist** string to extract any standalone `(Remix)`, `[Remix]`, or tailing `" Remix"` words that shouldn't be formally stored in the CUE `PERFORMER` parameters. 
 
 Finally, all extracted `(Mixed)` and `Remix` variations are cleanly appended to the **Title** string, where they logically belong!
+
+### Long Dash Support
+In addition to standard hyphens `-`, the heuristic separator detection now supports en-dashes `–` and em-dashes `—`. These are commonly used in YouTube descriptions when copy-pasted from other sources.
+
+### Trailing Dot Cleanup
+Some tracklists contain trailing periods at the end of every line (e.g., `"Artist - Title."`). If `ytdesc2cue` detects that more than 80% of the tracks in a list end with a period, it will automatically strip the trailing period from all track titles to ensure clean metadata.
 
 ## 3. Embellishment Extraction (`extract_feat_artists`)
 
