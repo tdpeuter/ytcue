@@ -1,7 +1,6 @@
 """Comprehensive tests for the comments and youtube modules, including negative edge cases."""
 
-import sys
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from ytdesc2cue.comments import find_tracklist_comment
 from ytdesc2cue.youtube import fetch_video_info, _filter_warnings
 

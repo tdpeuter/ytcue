@@ -44,7 +44,7 @@ def generate_cue_sheet(mix: Mix, artist_separator: str = "; ", include_labels: b
     mix_title = _escape_cue_string(mix.title or "YouTube Mix")
     lines = [
         'REM GENRE "Mix"',
-        f'PERFORMER "Various Artists"',
+        'PERFORMER "Various Artists"',
         f'TITLE "{mix_title}"',
     ]
 

@@ -1,5 +1,5 @@
 import re
-from typing import Tuple, List
+from typing import Tuple
 
 # Standard separators for splitting track into Artist - Title
 DASH_PATTERN = r"\s+[\-\–\—\―]\s+"

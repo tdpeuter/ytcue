@@ -9,7 +9,6 @@ from ytdesc2cue.metadata import (
     get_audio_search_query,
     get_audio_title,
     get_missing_cue_files_recursive,
-    AUDIO_EXTENSIONS,
 )
 from ytdesc2cue.parser import parse_lines
 from ytdesc2cue.comments import find_tracklist_comment
@@ -44,7 +43,7 @@ def process_single_file(
     info = fetch_video_info(query)
 
     if not info:
-        print(f"    ✗ Could not find video.", file=sys.stderr)
+        print("    ✗ Could not find video.", file=sys.stderr)
         return False
 
     print(f"    Found: {info['title']}", file=sys.stderr)
@@ -61,7 +60,7 @@ def process_single_file(
 
     # Step 3: Try comments
     if not lines:
-        print(f"    No timestamps in description. Trying comments...", file=sys.stderr)
+        print("    No timestamps in description. Trying comments...", file=sys.stderr)
         try:
             comment_info = fetch_video_info(info["url"], get_comments=True)
             if comment_info:
@@ -70,12 +69,12 @@ def process_single_file(
                     tracklist = find_tracklist_comment(comments, max_comments)
                     if tracklist:
                         lines = tracklist.splitlines()
-                        print(f"    ✓ Found tracklist in comments.", file=sys.stderr)
+                        print("    ✓ Found tracklist in comments.", file=sys.stderr)
         except Exception:
             pass
 
     if not lines:
-        print(f"    ✗ No tracklist found.", file=sys.stderr)
+        print("    ✗ No tracklist found.", file=sys.stderr)
         return False
 
     # Step 4: Generate CUE
