@@ -5,10 +5,16 @@ from typing import Optional
 TIMESTAMP_SEPARATORS = r"[\-\–\—\―\:\|\s]+"
 
 # Matches HH:MM:SS, MM:SS, HH.MM.SS, MM.SS at the beginning of the line
-# Followed by optional separators and then the track text
+# Now also handles an optional track number prefix (e.g., "1. 00:00")
+# to avoid mistaking track numbers for hours.
 TIMESTAMP_PATTERN = re.compile(
-    r"^\[?(?:(\d{1,2})[:.])?\s*(\d{1,2})[:.]\s*(\d{2})\]?"  # Timestamp
-    rf"(?:{TIMESTAMP_SEPARATORS})?"  # Optional separator
+    r"^"
+    r"(?:\d+[\.\-\s]+)?"  # Optional track number prefix (e.g., "1. ", "01 - ")
+    r"\[?"
+    r"(?:(\d{1,2}):)?"  # HH: (Must be followed by :)
+    r"\s*(\d{1,2})[:.]\s*(\d{2})"  # MM:SS or MM.SS
+    r"\]?"
+    r"(?:" + TIMESTAMP_SEPARATORS + ")?"  # Optional separator
     r"(.*)$"  # Remaining text
 )
 
