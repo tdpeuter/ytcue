@@ -134,6 +134,9 @@ def main():
         action="store_true",
         help="Include record label/publisher info as REM LABEL comments in the CUE sheet.",
     )
+    parser.add_argument(
+        "-y", "--yes", action="store_true", help="Overwrite existing CUE files without asking."
+    )
 
     args = parser.parse_args()
 
@@ -255,6 +258,12 @@ def main():
                 cue_content = generate_cue_sheet(mix, args.separator, include_labels=args.include_labels)
 
                 cue_path = audio_file.with_suffix(".cue")
+                if cue_path.exists() and not args.yes:
+                    overwrite = input(f"Warning: {cue_path.name} already exists. Overwrite? [y/N]: ").strip().lower()
+                    if overwrite not in ["y", "yes"]:
+                        print("Skipping write...")
+                        break
+
                 cue_path.write_text(cue_content, encoding="utf-8-sig")
                 print(f"Successfully created {cue_path.name}")
                 break  # Done with this file, move to next
