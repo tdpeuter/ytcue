@@ -33,6 +33,15 @@ Because "by" is a common English word, checking for it inline is extremely prone
 4. **Article Avoidance**: Ignored if the right side starts with `the `, `a `, or `an ` and is followed by lowercase words (suggesting a sentence clause rather than a formalized band name).
 5. **Verb Avoidance**: Ignored if the left side ends with common positional verbs like `stand`, `down`, `close`, `pass`, `fly`, `go` (e.g., "Stand by Me").
 
+### "Mixed" and "Remix" Tag Cleanup
+YouTube Music and DJ sets often natively append tags like `(Mixed)` or `[Mixed]` to the end of track names or artists. Because they use brackets and parentheses, they can heavily bias the auto-formatting heuristics if they wind up on the Artist side of the string, and they incorrectly clutter the CUE `PERFORMER` fields.
+
+To prevent this, `ytdesc2cue` performs a case-insensitive, global extraction of any `(Mixed)` or `[Mixed]` tags across the entire trackline string immediately before running any of the separation heuristics listed above. The tags are safely stored in memory.
+
+Additionally, after a string is split, the program performs one last pass on the isolated **Artist** string to extract any standalone `(Remix)`, `[Remix]`, or tailing `" Remix"` words that shouldn't be formally stored in the CUE `PERFORMER` parameters. 
+
+Finally, all extracted `(Mixed)` and `Remix` variations are cleanly appended to the **Title** string, where they logically belong!
+
 ## 3. Embellishment Extraction (`extract_feat_artists`)
 
 Once a string has successfully been cut into a `Title` and `Artist`, the program offers an optional `extract_feat` feature. When enabled, it natively searches both the `Title` AND the `Artist` string for expressions that designate featured guests.

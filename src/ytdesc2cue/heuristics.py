@@ -134,6 +134,18 @@ def split_track_string(
     Given a raw track string (e.g. 'Robyn, Yaeji  - Beach2k20 - Yaeji Remix'),
     splits it into (artist, title).
     """
+    # Clean up YouTube's artifact (Mixed) or [Mixed] globally before any heuristic processing
+    # but save them to be injected into the Title string later
+    global_tags = []
+
+    def extract_mixed(m):
+        global_tags.append(m.group(1).strip())
+        return ""
+
+    raw_text = re.sub(
+        r"\s*([\(\[]mixed[\)\]])", extract_mixed, raw_text, flags=re.IGNORECASE
+    )
+
     used_separator = primary_separator
 
     if primary_separator == "by":
@@ -195,5 +207,29 @@ def split_track_string(
             artist, title = part2.strip(), part1.strip()
         else:
             artist, title = part1.strip(), part2.strip()
+
+    # Clean up literal (Remix) or [Remix] tags from the artist string and move to title
+    artist_tags = []
+
+    def extract_remix(m):
+        artist_tags.append(m.group(1).strip())
+        return ""
+
+    artist = re.sub(
+        r"\s*([\(\[]remix[\)\]])", extract_remix, artist, flags=re.IGNORECASE
+    )
+
+    # Also strip trailing " Remix" if the performer string ends with it
+    def extract_trailing_remix(m):
+        artist_tags.append(m.group(1).strip())
+        return ""
+
+    artist = re.sub(
+        r"\s+(remix)$", extract_trailing_remix, artist, flags=re.IGNORECASE
+    ).strip()
+
+    all_tags = global_tags + artist_tags
+    if all_tags:
+        title = title.strip() + " " + " ".join(all_tags)
 
     return extract_feat_artists(title, artist, extract_feat)

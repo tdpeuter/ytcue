@@ -27,6 +27,40 @@ def test_split_artist_title():
     # Default without dashes
     assert split_track_string("Just A Song") == ("", "Just A Song")
 
+    # Mixed suffix cleanup
+    assert split_track_string("Franky Nuts (Mixed) - Waves", "artist-title") == (
+        "Franky Nuts",
+        "Waves (Mixed)",
+    )
+    assert split_track_string(
+        "Gucci Mane [Mixed] - Both (feat. Drake) [Remix]", "artist-title"
+    ) == (
+        "Gucci Mane",
+        "Both (feat. Drake) [Remix] [Mixed]",
+    )
+    assert split_track_string(
+        "Waves by Franky Nuts (mixed)", primary_separator="by"
+    ) == (
+        "Franky Nuts",
+        "Waves (mixed)",
+    )
+
+    # Remix suffix cleanup in artist
+    assert split_track_string("M-Beat (Remix) - Incredible", "artist-title") == (
+        "M-Beat",
+        "Incredible (Remix)",
+    )
+    assert split_track_string(
+        "Aaliyah [Remix] - Are You That Somebody", "artist-title"
+    ) == (
+        "Aaliyah",
+        "Are You That Somebody [Remix]",
+    )
+    assert split_track_string("Laura Les Remix - Haunted", "artist-title") == (
+        "Laura Les",
+        "Haunted Remix",
+    )
+
     # By split logic checks (smart heuristic fallback)
     assert split_track_string("Super Song by Cool Band") == (
         "Cool Band",
