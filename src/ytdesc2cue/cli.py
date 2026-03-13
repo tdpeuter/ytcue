@@ -12,8 +12,21 @@ def process_input(lines: list, format_guess: str, extract_feat: bool) -> Mix:
     parsed = parse_lines(lines)
     tracks = []
 
+    # Tracklist-level heuristic: evaluate whether to enforce a "by" split
+    by_count = 0
+    dash_count = 0
+    for _, raw_text in parsed:
+        if " by " in raw_text.lower():
+            by_count += 1
+        if " - " in raw_text:
+            dash_count += 1
+
+    primary_separator = None
+    if parsed and by_count > len(parsed) * 0.6 and dash_count < len(parsed) * 0.4:
+        primary_separator = "by"
+
     for timestamp, raw_text in parsed:
-        artist, title = split_track_string(raw_text, format_guess, extract_feat)
+        artist, title = split_track_string(raw_text, format_guess, extract_feat, primary_separator)
         tracks.append(Track(start_time_str=timestamp, artist=artist, title=title))
 
     return Mix(tracks=tracks)
