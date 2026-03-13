@@ -1,5 +1,4 @@
-from typing import List
-from ytdesc2cue.models import Mix, Track
+from ytdesc2cue.models import Mix
 
 
 def generate_cue_sheet(mix: Mix, artist_separator: str = "; ") -> str:

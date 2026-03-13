@@ -180,7 +180,7 @@ def main():
             if not parsed:
                 print("\nWarning: No valid timestamps found in the video description.")
                 print(
-                    f"Tip: A tracklist might be in the pinned comments! Check the video here:"
+                    "Tip: A tracklist might be in the pinned comments! Check the video here:"
                 )
                 print(f" -> {yt_data['url']}")
 
