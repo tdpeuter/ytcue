@@ -26,7 +26,9 @@ def process_input(lines: list, format_guess: str, extract_feat: bool) -> Mix:
         primary_separator = "by"
 
     for timestamp, raw_text in parsed:
-        artist, title = split_track_string(raw_text, format_guess, extract_feat, primary_separator)
+        artist, title = split_track_string(
+            raw_text, format_guess, extract_feat, primary_separator
+        )
         tracks.append(Track(start_time_str=timestamp, artist=artist, title=title))
 
     return Mix(tracks=tracks)

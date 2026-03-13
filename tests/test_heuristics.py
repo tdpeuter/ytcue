@@ -32,22 +32,22 @@ def test_split_artist_title():
         "Cool Band",
         "Super Song",
     )
-    
+
     # Capitalized article is valid
     assert split_track_string("Hey Jude by The Beatles") == (
         "The Beatles",
         "Hey Jude",
     )
-    
+
     # Pronoun avoidance
     assert split_track_string("Stand by Me") == ("", "Stand by Me")
-    
+
     # Article avoidance (lowercase right side)
     assert split_track_string("Down by the river") == ("", "Down by the river")
-    
+
     # Verb avoidance
     assert split_track_string("I went by the store") == ("", "I went by the store")
-    
+
     # Enclosed in brackets
     assert split_track_string("Some Track (Remixed by DJ Foo)") == (
         "",
@@ -55,16 +55,32 @@ def test_split_artist_title():
     )
 
     # Primary separator forced to 'by'
-    assert split_track_string("Just a Track by Some Artist", primary_separator="by") == (
+    assert split_track_string(
+        "Just a Track by Some Artist", primary_separator="by"
+    ) == (
         "Some Artist",
         "Just a Track",
     )
-    
+
     # Primary separator forced to 'by', ignoring smart heuristics
     assert split_track_string("Stand by Me", primary_separator="by") == (
         "Me",
         "Stand",
     )
+
+    # Primary separator forced to 'by', but no "by" in track -> fallback to "-"
+    assert split_track_string("Artist - Title", primary_separator="by") == (
+        "Artist",
+        "Title",
+    )
+
+    # Fallback checking format probabilities (keywords determining title)
+    assert split_track_string("Title Remix - Artist", primary_separator="by") == (
+        "Artist",
+        "Title Remix",
+    )
+
+
 def test_extract_feat_artists():
     assert extract_feat_artists(
         "My Song (feat. Jane Doe)", "John Doe", extract_feat=True

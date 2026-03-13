@@ -68,32 +68,33 @@ def _is_inside_brackets_or_quotes(text: str, index: int) -> bool:
 
     return False
 
+
 def _find_by_split(raw_text: str) -> Tuple[str, str]:
     """
     Heuristically attempts to split "Title by Artist" backwards.
     Returns (artist, title) if a valid split is found, else ("", raw_text).
     """
     by_matches = list(re.finditer(r"\s+by\s+", raw_text, re.IGNORECASE))
-    
+
     # Iterate backwards, assuming the last valid "by" is the separator
     for match in reversed(by_matches):
         start = match.start()
         end = match.end()
-        
+
         if _is_inside_brackets_or_quotes(raw_text, start):
             continue
-            
+
         left_part = raw_text[:start].strip()
         right_part = raw_text[end:].strip()
-        
+
         # Heuristic rules to avoid false positives:
         right_lower = right_part.lower()
         left_lower = left_part.lower()
-        
+
         # 1. Right side is a pronoun
         if right_lower in ("me", "you", "him", "her", "it", "us", "them"):
             continue
-            
+
         # 2. Right side starts with an article and doesn't seem like a capitalized band name
         # E.g., "Down by the river" vs "Song by The Beatles"
         if right_lower.startswith(("the ", "a ", "an ")):
@@ -101,38 +102,63 @@ def _find_by_split(raw_text: str) -> Tuple[str, str]:
             words = right_part.split()
             if len(words) > 1 and words[1].islower():
                 continue
-                
+
         # 3. Left side ends with common directional/positional verbs
-        if left_lower.endswith(("stand", "down", "close", "surrounded", "passed", "pass", "fly", "go", "went")):
+        if left_lower.endswith(
+            (
+                "stand",
+                "down",
+                "close",
+                "surrounded",
+                "passed",
+                "pass",
+                "fly",
+                "go",
+                "went",
+            )
+        ):
             continue
-            
+
         return right_part, left_part
-        
+
     return "", raw_text
 
+
 def split_track_string(
-    raw_text: str, artist_title_format: str = "auto", extract_feat: bool = False, primary_separator: str = None
+    raw_text: str,
+    artist_title_format: str = "auto",
+    extract_feat: bool = False,
+    primary_separator: str = None,
 ) -> Tuple[str, str]:
     """
     Given a raw track string (e.g. 'Robyn, Yaeji  - Beach2k20 - Yaeji Remix'),
     splits it into (artist, title).
     """
+    used_separator = primary_separator
+
     if primary_separator == "by":
         parts = re.split(r"\s+by\s+", raw_text, flags=re.IGNORECASE)
+        # Fallback to hyphen if no 'by' was found in this specific line
+        if len(parts) == 1:
+            used_separator = "-"
+            parts = re.split(r"\s+-\s+", raw_text)
     else:
+        used_separator = "-"
         parts = re.split(r"\s+-\s+", raw_text)
-        
+
     artist, title = "", ""
 
     if len(parts) == 1:
-        # If no primary separator found, try smart fallback if it wasn't a forced 'by'
-        if primary_separator != "by" and " by " in raw_text.lower():
+        # If no separator worked, try smart fallback if it wasn't a forced 'by'
+        if used_separator != "by" and " by " in raw_text.lower():
             artist, title = _find_by_split(raw_text)
         else:
             artist, title = "", raw_text
-    elif primary_separator == "by" or artist_title_format == "title-artist":
+    elif used_separator == "by" or artist_title_format == "title-artist":
         title = parts[0]
-        artist = " ".join(parts[1:]) if primary_separator == "by" else " - ".join(parts[1:])
+        artist = (
+            " ".join(parts[1:]) if used_separator == "by" else " - ".join(parts[1:])
+        )
     elif artist_title_format == "artist-title":
         artist = parts[0]
         title = " - ".join(parts[1:])
@@ -171,4 +197,3 @@ def split_track_string(
             artist, title = part1.strip(), part2.strip()
 
     return extract_feat_artists(title, artist, extract_feat)
-
