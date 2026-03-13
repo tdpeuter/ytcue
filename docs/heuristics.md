@@ -1,0 +1,46 @@
+# Parsing Heuristics
+
+The `ytdesc2cue` program tries to intelligently extract track titles and artist names from raw YouTube chapter or description lines. Since YouTube descriptions don't enforce a standardized format, this tool relies on a series of heuristics located in `src/ytdesc2cue/heuristics.py`.
+
+This document explains the strategies the program takes to split text boundaries.
+
+## 1. Tracklist-Level Evaluation
+
+Before processing individual lines, the program evaluates the entire tracklist (all parsed lines) in `src/ytdesc2cue/cli.py` to identify unified patterns.
+
+- If a significant majority of lines (e.g., > 60%) contain the string `" by "` and fewer than 40% contain a hyphen (`"-"`), the program enforces `"by"` as the *primary separator* for the entire list.
+- If this check doesn't pass, the program processes each line individually, assuming a hyphen (`-`) as the primary separator by default.
+
+## 2. Line-by-Line Splitting (`split_track_string`)
+
+### The Hyphen Separator (`-`)
+By default, the easiest and most common separator is a hyphen surrounded by spaces: ` - `.
+If `artist-title` or `title-artist` format is specifically provided by the user, the program simply blindly takes the first half as the artist/title and the remaining joined halves as the other.
+
+If the requested format is `auto` (default) and a hyphen exists, the program falls back to probabilistic heuristics to decide which side is the Title and which is the Artist:
+- **Title Keywords:** Left side is heavily favored if it contains `remix`, `edit`, `mix`, or `dub`. (Counter-balanced against the right side).
+- **Quotes:** The presence of single or double quotes adds weight (`"`, `'`, `’`).
+- **Parentheses:** The presence of both `(` and `)` adds weight.
+
+### The "by" Separator (`by`)
+When a line doesn't contain a hyphen, or if the tracklist-level evaluation determined `"by"` is the primary separator, the program attempts to split the string on the word `"by"`. 
+
+Because "by" is a common English word, checking for it inline is extremely prone to false positives (e.g., "Stand by Me", "Down by the River"). The `_find_by_split` function utilizes several smart safeguards:
+
+1. **Backwards Evaluation**: Assumes the *last* valid occurrence of "by" usually separates Title and Artist.
+2. **Bracket & Quote Evasion**: Ignores any `"by"` found inside balanced parentheses `()`, brackets `[]`, or quote blocks `""`, `''`.
+3. **Pronoun Avoidance**: Ignored if the right side is a standalone pronoun like `me`, `you`, `him`, `it`, `them`.
+4. **Article Avoidance**: Ignored if the right side starts with `the `, `a `, or `an ` and is followed by lowercase words (suggesting a sentence clause rather than a formalized band name).
+5. **Verb Avoidance**: Ignored if the left side ends with common positional verbs like `stand`, `down`, `close`, `pass`, `fly`, `go` (e.g., "Stand by Me").
+
+## 3. Embellishment Extraction (`extract_feat_artists`)
+
+Once a string has successfully been cut into a `Title` and `Artist`, the program offers an optional `extract_feat` feature. When enabled, it natively searches both the `Title` AND the `Artist` string for expressions that designate featured guests.
+
+Supported patterns:
+- `(feat. XYZ)`
+- `(ft. XYZ)`
+- `feat XYZ` at the tail end of the string
+- `ft XYZ` at the tail end of the string
+
+The identified artist `XYZ` is removed from its original location and normalized. It is then intelligently deduplicated and appended to the final Artist string using semicolons (e.g. `Main Artist; XYZ`), ready for direct export into the CUE performer metadata.
