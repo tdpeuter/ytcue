@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 from pathlib import Path
 
@@ -8,6 +8,7 @@ class Track:
     start_time_str: str
     artist: str
     title: str
+    label: Optional[str] = None
 
 
 @dataclass

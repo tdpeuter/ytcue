@@ -4,6 +4,33 @@ The `ytdesc2cue` program tries to intelligently extract track titles and artist 
 
 This document explains the strategies the program takes to split text boundaries.
 
+## 0. Timestamp Parsing (`parser.py`)
+
+### Supported Timestamp Formats
+The parser recognizes timestamps in the following formats at the beginning of a line:
+- `MM:SS` or `HH:MM:SS` (colons)
+- `MM.SS` or `HH.MM.SS` (dots)
+- `[MM:SS]` or `[HH:MM:SS]` (bracketed)
+
+### Pipe Separator (`|`)
+Some YouTube descriptions use a pipe character `|` between the timestamp and the track info:
+```
+00:00 | ASC - Vapour Trail
+06:48 | Eusebeia - More Than Lucky
+```
+The parser handles this transparently — the pipe is consumed as part of the timestamp delimiter and never reaches the track splitting heuristics.
+
+### Label/Publisher Extraction
+Some descriptions include the record label on the line immediately following each track:
+```
+00:00 | ASC - Vapour Trail
+Over/Shadow
+
+06:48 | Eusebeia - More Than Lucky
+Modern Conveniences
+```
+The `parse_lines_with_labels` function peeks at the next non-empty line after each timestamp line. If that line is **not** itself a timestamped track, it is captured as the track's `label`. This label can be optionally included in the CUE output as a `REM LABEL` comment per track via the `--include-labels` flag.
+
 ## 1. Tracklist-Level Evaluation
 
 Before processing individual lines, the program evaluates the entire tracklist (all parsed lines) in `src/ytdesc2cue/cli.py` to identify unified patterns.

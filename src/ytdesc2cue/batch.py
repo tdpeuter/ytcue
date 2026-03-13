@@ -129,6 +129,11 @@ def main():
         action="store_true",
         help="Enable attempting to extract (feat.) artists into the performer field.",
     )
+    parser.add_argument(
+        "--include-labels",
+        action="store_true",
+        help="Include record label/publisher info as REM LABEL comments in the CUE sheet.",
+    )
 
     args = parser.parse_args()
 
@@ -247,7 +252,7 @@ def main():
             # Generate CUE
             try:
                 mix.audio_file = audio_file  # Associate with the actual audio file name
-                cue_content = generate_cue_sheet(mix, args.separator)
+                cue_content = generate_cue_sheet(mix, args.separator, include_labels=args.include_labels)
 
                 cue_path = audio_file.with_suffix(".cue")
                 cue_path.write_text(cue_content, encoding="utf-8-sig")

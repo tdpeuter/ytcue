@@ -3,19 +3,19 @@ import sys
 from pathlib import Path
 
 from ytdesc2cue.models import Mix, Track
-from ytdesc2cue.parser import parse_lines
+from ytdesc2cue.parser import parse_lines_with_labels
 from ytdesc2cue.heuristics import split_track_string
 from ytdesc2cue.cue import generate_cue_sheet
 
 
 def process_input(lines: list, format_guess: str, extract_feat: bool) -> Mix:
-    parsed = parse_lines(lines)
+    parsed = parse_lines_with_labels(lines)
     tracks = []
 
     # Tracklist-level heuristic: evaluate whether to enforce a "by" split
     by_count = 0
     dash_count = 0
-    for _, raw_text in parsed:
+    for _, raw_text, _ in parsed:
         if " by " in raw_text.lower():
             by_count += 1
         if " - " in raw_text:
@@ -25,11 +25,11 @@ def process_input(lines: list, format_guess: str, extract_feat: bool) -> Mix:
     if parsed and by_count > len(parsed) * 0.6 and dash_count < len(parsed) * 0.4:
         primary_separator = "by"
 
-    for timestamp, raw_text in parsed:
+    for timestamp, raw_text, label in parsed:
         artist, title = split_track_string(
             raw_text, format_guess, extract_feat, primary_separator
         )
-        tracks.append(Track(start_time_str=timestamp, artist=artist, title=title))
+        tracks.append(Track(start_time_str=timestamp, artist=artist, title=title, label=label))
 
     return Mix(tracks=tracks)
 
@@ -85,6 +85,12 @@ def main():
     )
 
     parser.add_argument(
+        "--include-labels",
+        action="store_true",
+        help="Include record label/publisher info as REM LABEL comments in the CUE sheet (parsed from lines following each track).",
+    )
+
+    parser.add_argument(
         "-y", "--yes", action="store_true", help="Overwrite output file without asking."
     )
 
@@ -116,7 +122,7 @@ def main():
         mix.audio_file = Path(args.audio)
 
     # Generate CUE
-    cue_content = generate_cue_sheet(mix, args.separator)
+    cue_content = generate_cue_sheet(mix, args.separator, include_labels=args.include_labels)
 
     # Output handling
     if args.output:

@@ -1,7 +1,7 @@
 from ytdesc2cue.models import Mix
 
 
-def generate_cue_sheet(mix: Mix, artist_separator: str = "; ") -> str:
+def generate_cue_sheet(mix: Mix, artist_separator: str = "; ", include_labels: bool = False) -> str:
     """
     Generates a MusicBee-compatible CUE sheet from a Mix object.
     MusicBee supports standard CUE sheet formatting.
@@ -38,6 +38,10 @@ def generate_cue_sheet(mix: Mix, artist_separator: str = "; ") -> str:
         if track.artist:
             performer = track.artist.replace(",", artist_separator)
             lines.append(f'    PERFORMER "{performer}"')
+
+        # Optional label/publisher as a REM comment
+        if include_labels and track.label:
+            lines.append(f'    REM LABEL "{track.label}"')
 
         # Format index/timestamp (CUE requires MM:SS:FF where FF is frames 0-74)
         # Our parsed timestamps are HH:MM:SS or MM:SS

@@ -1,4 +1,4 @@
-from ytdesc2cue.parser import parse_lines
+from ytdesc2cue.parser import parse_lines, parse_lines_with_labels
 
 
 def test_parse_lines_basic():
@@ -23,3 +23,41 @@ def test_parse_lines_with_brackets():
     assert len(parsed) == 2
     assert parsed[0] == ("00:00", "Track 1")
     assert parsed[1] == ("01:30:45", "Track 2")
+
+
+def test_parse_lines_pipe_format():
+    """Test that the pipe separator between timestamp and track text is handled."""
+    lines = [
+        "00:00 | ASC - Vapour Trail",
+        "06:48 | Eusebeia - More Than Lucky",
+        "1:00:14 | Pixl - Empath",
+    ]
+    parsed = parse_lines(lines)
+
+    assert len(parsed) == 3
+    assert parsed[0] == ("00:00", "ASC - Vapour Trail")
+    assert parsed[1] == ("06:48", "Eusebeia - More Than Lucky")
+    assert parsed[2] == ("01:00:14", "Pixl - Empath")
+
+
+def test_parse_lines_with_labels_extraction():
+    """Test that labels on the line following a track are extracted correctly."""
+    lines = [
+        "00:00 | ASC - Vapour Trail",
+        "Over/Shadow",
+        "",
+        "06:48 | Eusebeia - More Than Lucky",
+        "Modern Conveniences",
+        "",
+        "1:00:14 | Pixl - Empath",
+        "",
+        "1:02:33 | Papa Shanti - Universal",
+        "Döner Beat Records",
+    ]
+    parsed = parse_lines_with_labels(lines)
+
+    assert len(parsed) == 4
+    assert parsed[0] == ("00:00", "ASC - Vapour Trail", "Over/Shadow")
+    assert parsed[1] == ("06:48", "Eusebeia - More Than Lucky", "Modern Conveniences")
+    assert parsed[2] == ("01:00:14", "Pixl - Empath", None)  # No label line
+    assert parsed[3] == ("01:02:33", "Papa Shanti - Universal", "Döner Beat Records")
