@@ -1,5 +1,5 @@
 from pathlib import Path
-from ytdesc2cue.models import Mix
+from ytcue.core.models import Mix
 
 
 # Map audio file extensions to CUE FILE types.

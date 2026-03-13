@@ -1,6 +1,6 @@
 # Parsing Heuristics
 
-The `ytdesc2cue` program tries to intelligently extract track titles and artist names from raw YouTube chapter or description lines. Since YouTube descriptions don't enforce a standardized format, this tool relies on a series of heuristics located in `src/ytdesc2cue/heuristics.py`.
+The `ytcue` program tries to intelligently extract track titles and artist names from raw YouTube chapter or description lines. Since YouTube descriptions don't enforce a standardized format, this tool relies on a series of heuristics located in `src/ytcue/heuristics.py`.
 
 This document explains the strategies the program takes to split text boundaries.
 
@@ -34,7 +34,7 @@ The `parse_lines_with_labels` function peeks at the next non-empty line after ea
 
 ## 1. Tracklist-Level Evaluation
 
-Before processing individual lines, the program evaluates the entire tracklist (all parsed lines) in `src/ytdesc2cue/cli.py` to identify unified patterns.
+Before processing individual lines, the program evaluates the entire tracklist (all parsed lines) in `src/ytcue/cli.py` to identify unified patterns.
 
 - If a significant majority of lines (e.g., > 60%) contain the string `" by "` and fewer than 40% contain a hyphen (`"-"`), the program enforces `"by"` as the *primary separator* for the entire list.
 - If this check doesn't pass, the program processes each line individually, assuming a hyphen (`-`) as the primary separator by default.
@@ -64,7 +64,7 @@ Because "by" is a common English word, checking for it inline is extremely prone
 ### "Mixed" and "Remix" Tag Cleanup
 YouTube Music and DJ sets often natively append tags like `(Mixed)` or `[Mixed]` to the end of track names or artists. Because they use brackets and parentheses, they can heavily bias the auto-formatting heuristics if they wind up on the Artist side of the string, and they incorrectly clutter the CUE `PERFORMER` fields.
 
-To prevent this, `ytdesc2cue` performs a case-insensitive, global extraction of any `(Mixed)` or `[Mixed]` tags across the entire trackline string immediately before running any of the separation heuristics listed above. The tags are safely stored in memory.
+To prevent this, `ytcue` performs a case-insensitive, global extraction of any `(Mixed)` or `[Mixed]` tags across the entire trackline string immediately before running any of the separation heuristics listed above. The tags are safely stored in memory.
 
 Additionally, after a string is split, the program performs one last pass on the isolated **Artist** string to extract any standalone `(Remix)`, `[Remix]`, or tailing `" Remix"` words that shouldn't be formally stored in the CUE `PERFORMER` parameters. 
 
@@ -74,7 +74,7 @@ Finally, all extracted `(Mixed)` and `Remix` variations are cleanly appended to 
 In addition to standard hyphens `-`, the heuristic separator detection now supports en-dashes `–` and em-dashes `—`. These are commonly used in YouTube descriptions when copy-pasted from other sources.
 
 ### Trailing Dot Cleanup
-Some tracklists contain trailing periods at the end of every line (e.g., `"Artist - Title."`). If `ytdesc2cue` detects that more than 80% of the tracks in a list end with a period, it will automatically strip the trailing period from all track titles to ensure clean metadata.
+Some tracklists contain trailing periods at the end of every line (e.g., `"Artist - Title."`). If `ytcue` detects that more than 80% of the tracks in a list end with a period, it will automatically strip the trailing period from all track titles to ensure clean metadata.
 
 ## 3. Embellishment Extraction (`extract_feat_artists`)
 

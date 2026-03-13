@@ -1,8 +1,8 @@
 """Tests for CUE sheet generation."""
 
 from pathlib import Path
-from ytdesc2cue.models import Mix, Track
-from ytdesc2cue.cue import generate_cue_sheet, _get_cue_file_type, _escape_cue_string
+from ytcue.core.models import Mix, Track
+from ytcue.core.cue import generate_cue_sheet, _get_cue_file_type, _escape_cue_string
 
 
 def test_cue_file_type_mapping():

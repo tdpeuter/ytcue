@@ -1,4 +1,4 @@
-from ytdesc2cue.heuristics import split_track_string, extract_feat_artists
+from ytcue.core.heuristics import split_track_string, extract_feat_artists
 
 
 def test_split_artist_title():

@@ -1,12 +1,13 @@
 """Audio file metadata utilities."""
 
-import argparse
-import sys
 from pathlib import Path
 
 from tinytag import TinyTag
 
 AUDIO_EXTENSIONS = {".flac", ".opus", ".mp3", ".m4a", ".wav", ".aac", ".ogg"}
+
+
+GENERIC_ARTISTS = {"various artists", "va", "unknown"}
 
 
 def get_audio_search_query(filepath: Path) -> str:
@@ -15,6 +16,11 @@ def get_audio_search_query(filepath: Path) -> str:
         tag = TinyTag.get(filepath)
         artist = tag.artist or tag.albumartist
         title = tag.title
+
+        # Filter out generic artist names
+        if artist and artist.lower().strip() in GENERIC_ARTISTS:
+            artist = None
+
         if artist and title:
             return f"{artist} - {title}"
         elif title:
@@ -112,26 +118,3 @@ def write_grouping_tag(filepath: Path, grouping: str) -> bool:
         return False
 
 
-def main():
-    """CLI entry point for ytaudio-query: prints a search query from audio file tags."""
-    parser = argparse.ArgumentParser(
-        description="Extract a YouTube search query from audio file metadata tags."
-    )
-    parser.add_argument(
-        "file",
-        type=Path,
-        help="Path to the audio file.",
-    )
-
-    args = parser.parse_args()
-
-    if not args.file.exists():
-        print(f"Error: File not found: {args.file}", file=sys.stderr)
-        sys.exit(1)
-
-    query = get_audio_search_query(args.file)
-    print(query)
-
-
-if __name__ == "__main__":
-    main()

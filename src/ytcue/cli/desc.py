@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from ytdesc2cue.youtube import fetch_video_info
+from ytcue.core.youtube import fetch_video_info
 
 
 def main():

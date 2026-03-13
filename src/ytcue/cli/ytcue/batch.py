@@ -4,12 +4,12 @@ import argparse
 import sys
 from pathlib import Path
 
-from ytdesc2cue.youtube import fetch_video_info
-from ytdesc2cue.metadata import get_audio_search_query, get_missing_cue_files, write_grouping_tag
-from ytdesc2cue.parser import parse_lines
-from ytdesc2cue.comments import find_tracklist_comment
-from ytdesc2cue.cli import process_input
-from ytdesc2cue.cue import generate_cue_sheet
+from ytcue.core.youtube import fetch_video_info
+from ytcue.core.metadata import get_audio_search_query, get_missing_cue_files, write_grouping_tag
+from ytcue.core.parser import parse_lines
+from ytcue.core.comments import find_tracklist_comment
+from ytcue.cli.parser import process_input
+from ytcue.core.cue import generate_cue_sheet
 
 
 def main():

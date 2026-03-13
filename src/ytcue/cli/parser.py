@@ -2,10 +2,10 @@ import argparse
 import sys
 from pathlib import Path
 
-from ytdesc2cue.models import Mix, Track
-from ytdesc2cue.parser import parse_lines_with_labels
-from ytdesc2cue.heuristics import split_track_string
-from ytdesc2cue.cue import generate_cue_sheet
+from ytcue.core.models import Mix, Track
+from ytcue.core.parser import parse_lines_with_labels
+from ytcue.core.heuristics import split_track_string
+from ytcue.core.cue import generate_cue_sheet
 
 
 def process_input(lines: list, format_guess: str, extract_feat: bool) -> Mix:
@@ -46,7 +46,7 @@ def process_input(lines: list, format_guess: str, extract_feat: bool) -> Mix:
 def main():
     parser = argparse.ArgumentParser(
         description="Convert YouTube descriptions with timestamps into MusicBee-compatible CUE sheets.",
-        epilog="Use DOTADIW workflow: yt-dlp to download the audio and description, then pipe the description into ytdesc2cue.",
+        epilog="Use DOTADIW workflow: yt-dlp to download the audio and description, then pipe the description into ytcue.",
     )
 
     parser.add_argument(

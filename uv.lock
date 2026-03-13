@@ -251,7 +251,7 @@ wheels = [
 ]
 
 [[package]]
-name = "ytdesc2cue"
+name = "ytcue"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

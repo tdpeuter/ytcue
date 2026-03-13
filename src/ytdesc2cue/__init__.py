@@ -1,1 +1,0 @@
-"""ytdesc2cue package."""

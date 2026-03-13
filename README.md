@@ -1,4 +1,4 @@
-# ytdesc2cue
+# ytcue
 
 *Note: This repository was written as an experiment exploring AI-assisted development with Google Antigravity.*
 
@@ -35,7 +35,7 @@ ytcue-auto ./music_library/
 | `ytcue` | All-in-one orchestrator (description → comments fallback → CUE) |
 | `ytcue-batch` | Interactive batch processing for directories |
 | `ytcue-auto` | Fully autonomous recursive processing |
-| `ytdesc2cue` | Core parser: tracklist text → CUE sheet |
+| `ytcue` | Core parser: tracklist text → CUE sheet |
 | `ytdesc` | Fetch YouTube description → stdout |
 | `ytcomments` | Find tracklist in comments → stdout |
 | `ytaudio-query` | Audio file tags → search query string |
@@ -43,8 +43,8 @@ ytcue-auto ./music_library/
 ## Piping Examples
 
 ```bash
-ytdesc "https://youtube..." | ytdesc2cue -a mix.flac > mix.cue
-ytcomments "https://youtube..." | ytdesc2cue -a mix.flac > mix.cue
+ytdesc "https://youtube..." | ytcue -a mix.flac > mix.cue
+ytcomments "https://youtube..." | ytcue -a mix.flac > mix.cue
 ```
 
 ## Documentation

@@ -1,5 +1,5 @@
 [project]
-name = "ytdesc2cue"
+name = "ytcue"
 version = "0.1.0"
 description = "Convert YouTube descriptions into MusicBee-compatible CUE sheets."
 readme = "README.md"
@@ -11,13 +11,13 @@ dependencies = [
 ]
 
 [project.scripts]
-ytdesc2cue = "ytdesc2cue.cli:main"
-ytdesc = "ytdesc2cue.desc:main"
-ytcomments = "ytdesc2cue.comments:main"
-ytaudio-query = "ytdesc2cue.metadata:main"
-ytcue = "ytdesc2cue.ytcue:main"
-ytcue-batch = "ytdesc2cue.batch:main"
-ytcue-auto = "ytdesc2cue.auto:main"
+ytcue-parse = "ytcue.cli.parser:main"
+ytdesc = "ytcue.cli.desc:main"
+ytcomments = "ytcue.cli.comments:main"
+ytaudio-query = "ytcue.cli.query:main"
+ytcue = "ytcue.cli.ytcue.main:main"
+ytcue-batch = "ytcue.cli.ytcue.batch:main"
+ytcue-auto = "ytcue.cli.ytcue.auto:main"
 
 [build-system]
 requires = ["hatchling"]

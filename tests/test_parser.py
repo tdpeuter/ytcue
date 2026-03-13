@@ -1,4 +1,4 @@
-from ytdesc2cue.parser import parse_lines, parse_lines_with_labels
+from ytcue.core.parser import parse_lines, parse_lines_with_labels
 
 
 def test_parse_lines_basic():

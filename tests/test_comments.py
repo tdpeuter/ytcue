@@ -1,8 +1,8 @@
 """Comprehensive tests for the comments and youtube modules, including negative edge cases."""
 
 from unittest.mock import patch
-from ytdesc2cue.comments import find_tracklist_comment
-from ytdesc2cue.youtube import fetch_video_info, _filter_warnings
+from ytcue.core.comments import find_tracklist_comment
+from ytcue.core.youtube import fetch_video_info, _filter_warnings
 
 
 # ── find_tracklist_comment tests ──────────────────────────────────────

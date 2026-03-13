@@ -1,4 +1,4 @@
-from ytdesc2cue.cli import process_input
+from ytcue.cli.parser import process_input
 
 
 def test_process_input_mixed_separator():

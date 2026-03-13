@@ -62,7 +62,7 @@ Each tool is independent and designed for piping.
 ytdesc "https://youtube.com/watch?v=..."
 
 # Pipe directly into the CUE generator
-ytdesc "https://youtube.com/watch?v=..." | ytdesc2cue -a mix.flac -o mix.cue
+ytdesc "https://youtube.com/watch?v=..." | ytcue -a mix.flac -o mix.cue
 ```
 
 ### `ytcomments` — Find Tracklists in Comments
@@ -73,7 +73,7 @@ Scans up to 100 top-sorted comments and picks the one with the most timestamps:
 ytcomments "https://youtube.com/watch?v=..."
 
 # Pipe into the CUE generator
-ytcomments "https://youtube.com/watch?v=..." | ytdesc2cue -a mix.flac -o mix.cue
+ytcomments "https://youtube.com/watch?v=..." | ytcue -a mix.flac -o mix.cue
 ```
 
 ### `ytaudio-query` — Extract Search Queries from Audio Tags
@@ -85,16 +85,16 @@ ytaudio-query mix.flac
 # Output: "DJ Shadow - Essential Mix 2016"
 ```
 
-### `ytdesc2cue` — Core Parser
+### `ytcue` — Core Parser
 
 Reads a tracklist from stdin or a file and generates a CUE sheet:
 
 ```bash
 # From a file
-ytdesc2cue description.txt -a mix.flac -o mix.cue
+ytcue description.txt -a mix.flac -o mix.cue
 
 # From stdin
-cat tracklist.txt | ytdesc2cue -a mix.flac
+cat tracklist.txt | ytcue -a mix.flac
 ```
 
 ---
@@ -105,18 +105,18 @@ The standalone tools compose freely via piping:
 
 ```bash
 # Manual pipeline: description → CUE
-ytdesc "https://youtube..." | ytdesc2cue -a mix.flac > mix.cue
+ytdesc "https://youtube..." | ytcue -a mix.flac > mix.cue
 
 # Manual pipeline: comments → CUE
-ytcomments "https://youtube..." | ytdesc2cue -a mix.flac > mix.cue
+ytcomments "https://youtube..." | ytcue -a mix.flac > mix.cue
 
 # Full auto: audio tags → search → description → CUE
-ytaudio-query mix.flac | xargs -I {} ytdesc "{}" | ytdesc2cue -a mix.flac > mix.cue
+ytaudio-query mix.flac | xargs -I {} ytdesc "{}" | ytcue -a mix.flac > mix.cue
 ```
 
 ---
 
-## `ytdesc2cue` Options
+## `ytcue` Options
 
 | Flag | Description |
 |---|---|
