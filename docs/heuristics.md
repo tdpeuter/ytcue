@@ -81,9 +81,12 @@ Some tracklists contain trailing periods at the end of every line (e.g., `"Artis
 Once a string has successfully been cut into a `Title` and `Artist`, the program offers an optional `extract_feat` feature. When enabled, it natively searches both the `Title` AND the `Artist` string for expressions that designate featured guests.
 
 Supported patterns:
-- `(feat. XYZ)`
-- `(ft. XYZ)`
-- `feat XYZ` at the tail end of the string
-- `ft XYZ` at the tail end of the string
+- `(feat. XYZ)`, `[feat. XYZ]`
+- `(ft. XYZ)`, `[ft. XYZ]`
+- `(featuring XYZ)`, `[featuring XYZ]`
+- `feat XYZ` / `ft XYZ` at the tail end of the string
+- `(with XYZ)`, `[with XYZ]`
+- `(w/ XYZ)`, `[w/ XYZ]`
+- `(prod. XYZ)`, `[prod. XYZ]` — producer credits
 
 The identified artist `XYZ` is removed from its original location and normalized. It is then intelligently deduplicated and appended to the final Artist string using semicolons (e.g. `Main Artist; XYZ`), ready for direct export into the CUE performer metadata.

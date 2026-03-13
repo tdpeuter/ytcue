@@ -11,7 +11,12 @@ dependencies = [
 
 [project.scripts]
 ytdesc2cue = "ytdesc2cue.cli:main"
+ytdesc = "ytdesc2cue.desc:main"
+ytcomments = "ytdesc2cue.comments:main"
+ytaudio-query = "ytdesc2cue.metadata:main"
+ytcue = "ytdesc2cue.ytcue:main"
 ytcue-batch = "ytdesc2cue.batch:main"
+ytcue-auto = "ytdesc2cue.auto:main"
 
 [build-system]
 requires = ["hatchling"]

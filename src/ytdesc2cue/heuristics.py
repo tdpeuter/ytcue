@@ -17,8 +17,14 @@ def extract_feat_artists(
         return current_artist, title
 
     feat_patterns = [
-        r"\((?:feat\.?|ft\.?)\s+([^)]+)\)",
-        r"(?:feat\.?|ft\.?)\s+([^-]+)$",
+        # (feat. XYZ), (ft. XYZ), [feat. XYZ], [ft. XYZ]
+        r"[\(\[](?:feat\.?|ft\.?|featuring)\s+([^)\]]+)[\)\]]",
+        # feat. XYZ at end of string
+        r"(?:feat\.?|ft\.?|featuring)\s+([^-]+)$",
+        # (with XYZ), [with XYZ]
+        r"[\(\[](?:with|w/)\s+([^)\]]+)[\)\]]",
+        # (prod. XYZ) — producer credits sometimes in feat position
+        r"[\(\[]prod\.?\s+([^)\]]+)[\)\]]",
     ]
 
     new_title = title

@@ -15,3 +15,4 @@ class Track:
 class Mix:
     tracks: List[Track]
     audio_file: Optional[Path] = None
+    title: Optional[str] = None

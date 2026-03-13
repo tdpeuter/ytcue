@@ -1,104 +1,15 @@
+"""Interactive batch wrapper for processing directories of audio files missing CUE sheets."""
+
 import argparse
 import sys
 from pathlib import Path
-import yt_dlp
-from tinytag import TinyTag
 
+from ytdesc2cue.youtube import fetch_video_info
+from ytdesc2cue.metadata import get_audio_search_query, get_missing_cue_files
+from ytdesc2cue.parser import parse_lines
+from ytdesc2cue.comments import find_tracklist_comment
 from ytdesc2cue.cli import process_input
 from ytdesc2cue.cue import generate_cue_sheet
-from ytdesc2cue.parser import parse_lines
-
-AUDIO_EXTENSIONS = {".flac", ".opus", ".mp3", ".m4a", ".wav", ".aac", ".ogg"}
-
-
-def get_audio_search_query(filepath: Path) -> str:
-    """Extracts metadata to form a YouTube search query, falling back to filename."""
-    try:
-        tag = TinyTag.get(filepath)
-        artist = tag.artist or tag.albumartist
-        title = tag.title
-        if artist and title:
-            return f"{artist} - {title}"
-        elif title:
-            return title
-    except Exception:
-        pass
-
-    # Fallback to filename without extension
-    return filepath.stem
-
-
-def _filter_warnings(msg):
-    if "No supported JavaScript runtime could be found" in msg:
-        return
-    print(f"Warning: {msg}", file=sys.stderr)
-
-
-class MyLogger:
-    def debug(self, msg):
-        pass
-
-    def info(self, msg):
-        pass
-
-    def warning(self, msg):
-        _filter_warnings(msg)
-
-    def error(self, msg):
-        print(msg, file=sys.stderr)
-
-
-def fetch_youtube_data(query_or_url: str) -> dict:
-    """Uses yt-dlp to fetch the description of a YouTube video or search result."""
-
-    # If it doesn't look like a URL, treat it as a search
-    if not query_or_url.startswith("http"):
-        query_or_url = f"ytsearch1:{query_or_url}"
-
-    ydl_opts = {
-        "quiet": True,
-        "extract_flat": False,  # We need the full info, not just playlist links
-        "nocheckcertificate": True,
-        "logger": MyLogger(),
-    }
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(query_or_url, download=False)
-
-            if "entries" in info:
-                # It was a search, get the first entry
-                entries = info.get("entries", [])
-                if not entries:
-                    print("Warning: No search results found.", file=sys.stderr)
-                    return None
-                info = entries[0]
-
-            if "description" in info and info["description"]:
-                return {
-                    "title": info.get("title", "Unknown Title"),
-                    "url": info.get("webpage_url", query_or_url),
-                    "description": info["description"],
-                }
-            else:
-                print(
-                    f"Warning: No description found for video '{info.get('title', 'Unknown')}'.",
-                    file=sys.stderr,
-                )
-                return None
-    except Exception as e:
-        print(f"Error fetching YouTube data: {e}", file=sys.stderr)
-        return None
-
-
-def get_missing_cue_files(directory: Path) -> list[Path]:
-    """Returns a list of audio files in the directory that don't have a corresponding .cue file."""
-    audio_files = []
-    for f in directory.iterdir():
-        if f.is_file() and f.suffix.lower() in AUDIO_EXTENSIONS:
-            cue_path = f.with_suffix(".cue")
-            if not cue_path.exists():
-                audio_files.append(f)
-    return sorted(audio_files)
 
 
 def main():
@@ -170,15 +81,14 @@ def main():
                 break
 
             if not url_or_query:
-                # Auto-search triggered
                 print(f'Searching YouTube for: "{search_query}"...')
-                yt_data = fetch_youtube_data(search_query)
+                yt_data = fetch_video_info(search_query)
             else:
                 print("Fetching URL data...")
-                yt_data = fetch_youtube_data(url_or_query)
+                yt_data = fetch_video_info(url_or_query)
 
             if not yt_data:
-                continue  # Try again
+                continue
 
             print(f"\n--- Found Video: {yt_data['title']} ---")
             lines = yt_data["description"].splitlines()
@@ -186,37 +96,62 @@ def main():
             # Test parse to show what we found
             parsed = parse_lines(lines)
             if not parsed:
-                print("\nWarning: No valid timestamps found in the video description.")
-                print(
-                    "Tip: A tracklist might be in the pinned comments! Check the video here:"
-                )
-                print(f" -> {yt_data['url']}")
+                print("\nNo timestamps found in the video description.")
 
-                print(
-                    "\nIf you found a tracklist, paste it below (press Enter twice when done)."
-                )
-                print(
-                    "Or just press Enter immediately to retry a different search/URL."
-                )
+                # Interactive comment fallback
+                try_comments = input(
+                    "Try fetching tracklist from comments? [y/N/s(kip)]: "
+                ).strip().lower()
 
-                user_pasted_lines = []
-                while True:
-                    line = input()
-                    if not line:
-                        break
-                    user_pasted_lines.append(line)
+                if try_comments == "s":
+                    print("Skipping...")
+                    break
+                elif try_comments in ["y", "yes"]:
+                    url = yt_data["url"]
+                    print(f"Fetching comments for {url}...")
+                    try:
+                        comment_info = fetch_video_info(url, get_comments=True)
+                        if comment_info:
+                            comments = comment_info.get("comments") or []
+                            if comments:
+                                tracklist = find_tracklist_comment(comments)
+                                if tracklist:
+                                    lines = tracklist.splitlines()
+                                    parsed = parse_lines(lines)
+                                    print("Found tracklist in comments!")
+                                else:
+                                    print("No tracklist found in comments.")
+                            else:
+                                print("No comments were returned.")
+                        else:
+                            print("Could not fetch comments (timeout or error).")
+                    except Exception as e:
+                        print(f"Error fetching comments: {e}")
 
-                if user_pasted_lines:
-                    parsed = parse_lines(user_pasted_lines)
-                    if parsed:
-                        lines = user_pasted_lines
+                if not parsed:
+                    print("\nYou can also paste a tracklist below (press Enter twice when done).")
+                    print(
+                        "Or just press Enter immediately to retry a different search/URL."
+                    )
+
+                    user_pasted_lines = []
+                    while True:
+                        line = input()
+                        if not line:
+                            break
+                        user_pasted_lines.append(line)
+
+                    if user_pasted_lines:
+                        parsed = parse_lines(user_pasted_lines)
+                        if parsed:
+                            lines = user_pasted_lines
+                        else:
+                            print(
+                                "Still no valid timestamps found in the pasted text. Please retry."
+                            )
+                            continue
                     else:
-                        print(
-                            "Still no valid timestamps found in the pasted text. Please retry."
-                        )
                         continue
-                else:
-                    continue  # User pressed enter immediately to skip/retry
 
             # Generate the Mix object early to preview parsing heuristics
             try:
@@ -230,7 +165,6 @@ def main():
             if len(tracks) > 0:
                 print("First 3 tracks parsed preview:")
                 for track in tracks[:3]:
-                    # Build string for artist and title, taking care of empty artist
                     track_repr = f"[{track.start_time_str}] "
                     if track.artist:
                         track_repr += f"{track.artist} - "
@@ -250,11 +184,11 @@ def main():
                 print("Skipping...")
                 break
             elif confirm == "n":
-                continue  # Loop back to prompt
+                continue
 
             # Generate CUE
             try:
-                mix.audio_file = audio_file  # Associate with the actual audio file name
+                mix.audio_file = audio_file
                 cue_content = generate_cue_sheet(mix, args.separator, include_labels=args.include_labels)
 
                 cue_path = audio_file.with_suffix(".cue")
@@ -266,7 +200,7 @@ def main():
 
                 cue_path.write_text(cue_content, encoding="utf-8-sig")
                 print(f"Successfully created {cue_path.name}")
-                break  # Done with this file, move to next
+                break
             except Exception as e:
                 print(f"Error generating CUE sheet: {e}")
                 break
