@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from typing import List, Optional
 from pathlib import Path
+from typing import Optional
 
 
 @dataclass
@@ -13,6 +13,6 @@ class Track:
 
 @dataclass
 class Mix:
-    tracks: List[Track]
+    tracks: list[Track]
     audio_file: Optional[Path] = None
     title: Optional[str] = None

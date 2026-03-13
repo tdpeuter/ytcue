@@ -4,17 +4,24 @@ import argparse
 import sys
 from pathlib import Path
 
-from ytcue.core.youtube import fetch_video_info
-from ytcue.core.metadata import get_audio_search_query, get_audio_title, write_grouping_tag
-from ytcue.core.parser import parse_lines
-from ytcue.core.comments import find_tracklist_comment
 from ytcue.cli.parser import process_input
+from ytcue.core.comments import find_tracklist_comment
 from ytcue.core.cue import generate_cue_sheet
+from ytcue.core.metadata import (
+    get_audio_search_query,
+    get_audio_title,
+    write_grouping_tag,
+)
+from ytcue.core.parser import parse_lines
+from ytcue.core.youtube import fetch_video_info
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
-        description="All-in-one tool: fetch a YouTube tracklist (description or comments) and generate a CUE sheet.",
+        description=(
+            "All-in-one tool: fetch a YouTube tracklist (description or comments) "
+            "and generate a CUE sheet."
+        ),
         epilog="Wraps ytdesc, ytcomments, and ytcue into a single command.",
     )
     parser.add_argument(
@@ -105,9 +112,7 @@ def main():
             parsed = parse_lines(desc_lines)
             if parsed:
                 lines = desc_lines
-                print(
-                    f"Found {len(parsed)} timestamps in description.", file=sys.stderr
-                )
+                print(f"Found {len(parsed)} timestamps in description.", file=sys.stderr)
 
     # Step 3: Fallback to comments
     if not lines:
@@ -148,9 +153,7 @@ def main():
     if video_title:
         mix.title = video_title
 
-    cue_content = generate_cue_sheet(
-        mix, args.separator, include_labels=args.include_labels
-    )
+    cue_content = generate_cue_sheet(mix, args.separator, include_labels=args.include_labels)
 
     # Step 5: Output
     if output_path:
@@ -166,9 +169,7 @@ def main():
         # Write grouping tag to the audio file metadata
         if source_path.exists() and source_path.is_file():
             if write_grouping_tag(source_path, mix.title or "YouTube Mix"):
-                print(
-                    f"Wrote grouping tag to {source_path.name}", file=sys.stderr
-                )
+                print(f"Wrote grouping tag to {source_path.name}", file=sys.stderr)
     else:
         sys.stdout.write(cue_content)
 

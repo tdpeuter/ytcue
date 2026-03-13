@@ -3,11 +3,11 @@
 import argparse
 import sys
 
-from ytcue.core.youtube import fetch_video_info
 from ytcue.core.comments import find_tracklist_comment
+from ytcue.core.youtube import fetch_video_info
 
 
-def main():
+def main() -> None:
     """CLI entry point for ytcomments: finds tracklists in YouTube comments."""
     parser = argparse.ArgumentParser(
         description="Search for tracklists in YouTube comments using timestamp heuristics."

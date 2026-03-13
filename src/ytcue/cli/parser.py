@@ -1,14 +1,15 @@
 import argparse
 import sys
 from pathlib import Path
+from typing import Optional
 
+from ytcue.core.cue import generate_cue_sheet
+from ytcue.core.heuristics import split_track_string
 from ytcue.core.models import Mix, Track
 from ytcue.core.parser import parse_lines_with_labels
-from ytcue.core.heuristics import split_track_string
-from ytcue.core.cue import generate_cue_sheet
 
 
-def process_input(lines: list, format_guess: str, extract_feat: bool) -> Mix:
+def process_input(lines: list[str], format_guess: str, extract_feat: bool) -> Mix:
     parsed = parse_lines_with_labels(lines)
     tracks = []
 
@@ -21,17 +22,13 @@ def process_input(lines: list, format_guess: str, extract_feat: bool) -> Mix:
         if " - " in raw_text:
             dash_count += 1
 
-    primary_separator = None
+    primary_separator: Optional[str] = None
     if parsed and by_count > len(parsed) * 0.6 and dash_count < len(parsed) * 0.4:
         primary_separator = "by"
 
     for timestamp, raw_text, label in parsed:
-        artist, title = split_track_string(
-            raw_text, format_guess, extract_feat, primary_separator
-        )
-        tracks.append(
-            Track(start_time_str=timestamp, artist=artist, title=title, label=label)
-        )
+        artist, title = split_track_string(raw_text, format_guess, extract_feat, primary_separator)
+        tracks.append(Track(start_time_str=timestamp, artist=artist, title=title, label=label))
 
     # Dot-stripping heuristic: if most tracks end with a dot, remove it.
     dot_count = sum(1 for t in tracks if t.title.endswith("."))
@@ -43,10 +40,15 @@ def process_input(lines: list, format_guess: str, extract_feat: bool) -> Mix:
     return Mix(tracks=tracks)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Convert YouTube descriptions with timestamps into MusicBee-compatible CUE sheets.",
-        epilog="Use DOTADIW workflow: yt-dlp to download the audio and description, then pipe the description into ytcue.",
+        description=(
+            "Convert YouTube descriptions with timestamps into MusicBee-compatible CUE sheets."
+        ),
+        epilog=(
+            "Use DOTADIW workflow: yt-dlp to download the audio and description, "
+            "then pipe the description into ytcue."
+        ),
     )
 
     parser.add_argument(
@@ -76,7 +78,10 @@ def main():
         "--format",
         choices=["auto", "artist-title", "title-artist"],
         default="auto",
-        help="Heuristic format for the tracklist. Default is 'auto'. Use 'artist-title' or 'title-artist' to force.",
+        help=(
+            "Heuristic format for the tracklist. Default is 'auto'. "
+            "Use 'artist-title' or 'title-artist' to force."
+        ),
     )
 
     parser.add_argument(
@@ -84,7 +89,7 @@ def main():
         "--separator",
         type=str,
         default="; ",
-        help="Artist separator string for the CUE PERFORMER field. Default is '; ' which works well for MusicBee.",
+        help="Artist separator for CUE PERFORMER. Default '; ' (MusicBee compatible).",
     )
 
     parser.add_argument(
@@ -96,7 +101,10 @@ def main():
     parser.add_argument(
         "--include-labels",
         action="store_true",
-        help="Include record label/publisher info as REM LABEL comments in the CUE sheet (parsed from lines following each track).",
+        help=(
+            "Include record label info as REM LABEL comments (parsed from lines "
+            "following each track)."
+        ),
     )
 
     parser.add_argument(
@@ -131,9 +139,7 @@ def main():
         mix.audio_file = Path(args.audio)
 
     # Generate CUE
-    cue_content = generate_cue_sheet(
-        mix, args.separator, include_labels=args.include_labels
-    )
+    cue_content = generate_cue_sheet(mix, args.separator, include_labels=args.include_labels)
 
     # Output handling
     if args.output:

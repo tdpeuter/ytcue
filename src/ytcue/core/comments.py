@@ -1,10 +1,12 @@
 """Logic to find tracklists in YouTube video comments."""
 
 import sys
+from typing import Any
+
 from ytcue.core.parser import TIMESTAMP_PATTERN
 
 
-def find_tracklist_comment(comments: list, max_comments: int = 100) -> str:
+def find_tracklist_comment(comments: list[dict[str, Any]], max_comments: int = 100) -> str:
     """
     Scans a list of comment dicts and returns the text of the one
     that looks most like a tracklist (most timestamp matches).

@@ -1,8 +1,9 @@
 """Tests for CUE sheet generation."""
 
 from pathlib import Path
+
+from ytcue.core.cue import _escape_cue_string, _get_cue_file_type, generate_cue_sheet
 from ytcue.core.models import Mix, Track
-from ytcue.core.cue import generate_cue_sheet, _get_cue_file_type, _escape_cue_string
 
 
 def test_cue_file_type_mapping():
@@ -96,8 +97,6 @@ def test_generate_cue_no_performer():
     cue = generate_cue_sheet(mix)
     lines = cue.splitlines()
     track_lines = [
-        line
-        for line in lines
-        if line.strip().startswith("PERFORMER") and "Various" not in line
+        line for line in lines if line.strip().startswith("PERFORMER") and "Various" not in line
     ]
     assert len(track_lines) == 0

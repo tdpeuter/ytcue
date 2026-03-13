@@ -1,4 +1,4 @@
-from ytcue.core.heuristics import split_track_string, extract_feat_artists
+from ytcue.core.heuristics import extract_feat_artists, split_track_string
 
 
 def test_split_artist_title():
@@ -38,9 +38,7 @@ def test_split_artist_title():
         "Gucci Mane",
         "Both (feat. Drake) [Remix] [Mixed]",
     )
-    assert split_track_string(
-        "Waves by Franky Nuts (mixed)", primary_separator="by"
-    ) == (
+    assert split_track_string("Waves by Franky Nuts (mixed)", primary_separator="by") == (
         "Franky Nuts",
         "Waves (mixed)",
     )
@@ -50,9 +48,7 @@ def test_split_artist_title():
         "M-Beat",
         "Incredible (Remix)",
     )
-    assert split_track_string(
-        "Aaliyah [Remix] - Are You That Somebody", "artist-title"
-    ) == (
+    assert split_track_string("Aaliyah [Remix] - Are You That Somebody", "artist-title") == (
         "Aaliyah",
         "Are You That Somebody [Remix]",
     )
@@ -89,9 +85,7 @@ def test_split_artist_title():
     )
 
     # Primary separator forced to 'by'
-    assert split_track_string(
-        "Just a Track by Some Artist", primary_separator="by"
-    ) == (
+    assert split_track_string("Just a Track by Some Artist", primary_separator="by") == (
         "Some Artist",
         "Just a Track",
     )
@@ -120,9 +114,10 @@ def test_split_artist_title():
 
 
 def test_extract_feat_artists():
-    assert extract_feat_artists(
-        "My Song (feat. Jane Doe)", "John Doe", extract_feat=True
-    ) == ("John Doe; Jane Doe", "My Song")
+    assert extract_feat_artists("My Song (feat. Jane Doe)", "John Doe", extract_feat=True) == (
+        "John Doe; Jane Doe",
+        "My Song",
+    )
     assert extract_feat_artists("Track (ft. Singer)", "Artist", extract_feat=True) == (
         "Artist; Singer",
         "Track",
@@ -131,18 +126,20 @@ def test_extract_feat_artists():
         "DJ; Rapper",
         "Title",
     )
-    assert extract_feat_artists(
-        "Already here (feat. Name)", "Artist; Name", extract_feat=True
-    ) == ("Artist; Name", "Already here")  # deduplication check
+    assert extract_feat_artists("Already here (feat. Name)", "Artist; Name", extract_feat=True) == (
+        "Artist; Name",
+        "Already here",
+    )  # deduplication check
     assert extract_feat_artists("Just a song", "Singer", extract_feat=True) == (
         "Singer",
         "Just a song",
     )
 
     # New patterns: featuring, with, w/, prod., bracket variants
-    assert extract_feat_artists(
-        "Track (featuring Guest)", "Artist", extract_feat=True
-    ) == ("Artist; Guest", "Track")
+    assert extract_feat_artists("Track (featuring Guest)", "Artist", extract_feat=True) == (
+        "Artist; Guest",
+        "Track",
+    )
     assert extract_feat_artists("Track [feat. Guest]", "Artist", extract_feat=True) == (
         "Artist; Guest",
         "Track",
@@ -151,13 +148,15 @@ def test_extract_feat_artists():
         "Artist; Guest",
         "Track",
     )
-    assert extract_feat_artists(
-        "Track (with Vocalist)", "Artist", extract_feat=True
-    ) == ("Artist; Vocalist", "Track")
+    assert extract_feat_artists("Track (with Vocalist)", "Artist", extract_feat=True) == (
+        "Artist; Vocalist",
+        "Track",
+    )
     assert extract_feat_artists("Track (w/ DJ Foo)", "Artist", extract_feat=True) == (
         "Artist; DJ Foo",
         "Track",
     )
-    assert extract_feat_artists(
-        "Track (prod. Producer)", "Artist", extract_feat=True
-    ) == ("Artist; Producer", "Track")
+    assert extract_feat_artists("Track (prod. Producer)", "Artist", extract_feat=True) == (
+        "Artist; Producer",
+        "Track",
+    )

@@ -7,7 +7,7 @@ from pathlib import Path
 from ytcue.core.metadata import get_audio_search_query
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Extract a YouTube search query from audio file metadata tags."
     )

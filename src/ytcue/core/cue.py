@@ -1,6 +1,7 @@
 from pathlib import Path
-from ytcue.core.models import Mix
+from typing import Optional
 
+from ytcue.core.models import Mix
 
 # Map audio file extensions to CUE FILE types.
 # MusicBee treats WAVE as a generic lossless container type.
@@ -20,7 +21,7 @@ _CUE_FILE_TYPES = {
 }
 
 
-def _get_cue_file_type(audio_path: Path | None) -> str:
+def _get_cue_file_type(audio_path: Optional[Path]) -> str:
     """Returns the CUE FILE type keyword for the given audio file extension."""
     if audio_path is None:
         return "WAVE"
@@ -32,9 +33,7 @@ def _escape_cue_string(value: str) -> str:
     return value.replace('"', "'")
 
 
-def generate_cue_sheet(
-    mix: Mix, artist_separator: str = "; ", include_labels: bool = False
-) -> str:
+def generate_cue_sheet(mix: Mix, artist_separator: str = "; ", include_labels: bool = False) -> str:
     """
     Generates a MusicBee-compatible CUE sheet from a Mix object.
 

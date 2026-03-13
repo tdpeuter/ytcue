@@ -10,7 +10,7 @@ def test_process_input_mixed_separator():
     raw_lines = [
         "00:00 The Test by The Artist",
         "03:00 Second Track - Cool Guy",
-        "05:30 Something in brackets (feat. Dude)",  # Should resolve to Title-Artist default if no hyphen/by
+        "05:30 Something in brackets (feat. Dude)",  # Title-Artist default if no hyphen/by
         "07:15 Another Track by Another Band",
     ]
 
@@ -23,11 +23,11 @@ def test_process_input_mixed_separator():
     assert mix.tracks[0].title == "The Test"
 
     # 2. Track lacking "by" but having "-", falling back to hyphen logic
-    # (probabilistic check places left-side "Second Track" as Artist because there are no Remix/Dub keywords on the right)
+    # (probabilistic check places left-side "Second Track" as Artist)
     assert mix.tracks[1].artist == "Second Track"
     assert mix.tracks[1].title == "Cool Guy"
 
-    # 3. Track lacking any clear separator, falls back gracefully (Artist blank)
+    # 3. Track lacking any clear separator, falls back gracefully
     assert mix.tracks[2].artist == "; Dude"  # Feat extracted
     assert mix.tracks[2].title == "Something in brackets"
 

@@ -4,17 +4,24 @@ import argparse
 import sys
 from pathlib import Path
 
-from ytcue.core.youtube import fetch_video_info
-from ytcue.core.metadata import get_audio_search_query, get_missing_cue_files, write_grouping_tag
-from ytcue.core.parser import parse_lines
-from ytcue.core.comments import find_tracklist_comment
 from ytcue.cli.parser import process_input
+from ytcue.core.comments import find_tracklist_comment
 from ytcue.core.cue import generate_cue_sheet
+from ytcue.core.metadata import (
+    get_audio_search_query,
+    get_missing_cue_files,
+    write_grouping_tag,
+)
+from ytcue.core.parser import parse_lines
+from ytcue.core.youtube import fetch_video_info
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Interactive batch wrapper to fetch YouTube descriptions for audio files missing CUE sheets."
+        description=(
+            "Interactive batch wrapper to fetch YouTube descriptions for audio files "
+            "missing CUE sheets."
+        )
     )
     parser.add_argument(
         "path",
@@ -76,7 +83,8 @@ def main():
 
         while True:
             url_or_query = input(
-                f"Provide YouTube URL (Enter to auto-search: \"{search_query}\", or 's' to skip): "
+                f"Provide YouTube URL (Enter to auto-search: \"{search_query}\", "
+                "or 's' to skip): "
             ).strip()
 
             if url_or_query.lower() == "s":
@@ -134,12 +142,8 @@ def main():
                         print(f"Error fetching comments: {e}")
 
                 if not parsed:
-                    print(
-                        "\nYou can also paste a tracklist below (press Enter twice when done)."
-                    )
-                    print(
-                        "Or just press Enter immediately to retry a different search/URL."
-                    )
+                    print("\nYou can also paste a tracklist below (press Enter twice when done).")
+                    print("Or just press Enter immediately to retry a different search/URL.")
 
                     user_pasted_lines = []
                     while True:
@@ -181,9 +185,7 @@ def main():
                     print("  ...")
 
             confirm = (
-                input(
-                    "\nDoes this look correct? [Y to generate / n to retry / s to skip]: "
-                )
+                input("\nDoes this look correct? [Y to generate / n to retry / s to skip]: ")
                 .strip()
                 .lower()
             )
@@ -203,9 +205,7 @@ def main():
                 cue_path = audio_file.with_suffix(".cue")
                 if cue_path.exists() and not args.yes:
                     overwrite = (
-                        input(
-                            f"Warning: {cue_path.name} already exists. Overwrite? [y/N]: "
-                        )
+                        input(f"Warning: {cue_path.name} already exists. Overwrite? [y/N]: ")
                         .strip()
                         .lower()
                     )

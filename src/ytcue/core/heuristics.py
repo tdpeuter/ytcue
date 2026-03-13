@@ -1,5 +1,5 @@
 import re
-from typing import Tuple
+from typing import Optional
 
 # Standard separators for splitting track into Artist - Title
 DASH_PATTERN = r"\s+[\-\–\—\―]\s+"
@@ -7,7 +7,7 @@ DASH_PATTERN = r"\s+[\-\–\—\―]\s+"
 
 def extract_feat_artists(
     title: str, current_artist: str, extract_feat: bool = False
-) -> Tuple[str, str]:
+) -> tuple[str, str]:
     """
     Extracts '(feat. XYZ)' or 'feat. XYZ' from the title OR artist string,
     and cleanly appends XYZ to the artist string.
@@ -78,7 +78,7 @@ def _is_inside_brackets_or_quotes(text: str, index: int) -> bool:
     return False
 
 
-def _find_by_split(raw_text: str) -> Tuple[str, str]:
+def _find_by_split(raw_text: str) -> tuple[str, str]:
     """
     Heuristically attempts to split "Title by Artist" backwards.
     Returns (artist, title) if a valid split is found, else ("", raw_text).
@@ -137,8 +137,8 @@ def split_track_string(
     raw_text: str,
     artist_title_format: str = "auto",
     extract_feat: bool = False,
-    primary_separator: str = None,
-) -> Tuple[str, str]:
+    primary_separator: Optional[str] = None,
+) -> tuple[str, str]:
     """
     Given a raw track string (e.g. 'Robyn, Yaeji  - Beach2k20 - Yaeji Remix'),
     splits it into (artist, title).
@@ -147,13 +147,11 @@ def split_track_string(
     # but save them to be injected into the Title string later
     global_tags = []
 
-    def extract_mixed(m):
+    def extract_mixed(m: re.Match[str]) -> str:
         global_tags.append(m.group(1).strip())
         return ""
 
-    raw_text = re.sub(
-        r"\s*([\(\[]mixed[\)\]])", extract_mixed, raw_text, flags=re.IGNORECASE
-    )
+    raw_text = re.sub(r"\s*([\(\[]mixed[\)\]])", extract_mixed, raw_text, flags=re.IGNORECASE)
 
     used_separator = primary_separator
 
@@ -177,9 +175,7 @@ def split_track_string(
             artist, title = "", raw_text
     elif used_separator == "by" or artist_title_format == "title-artist":
         title = parts[0]
-        artist = (
-            " ".join(parts[1:]) if used_separator == "by" else " - ".join(parts[1:])
-        )
+        artist = " ".join(parts[1:]) if used_separator == "by" else " - ".join(parts[1:])
     elif artist_title_format == "artist-title":
         artist = parts[0]
         title = " - ".join(parts[1:])
@@ -220,22 +216,18 @@ def split_track_string(
     # Clean up literal (Remix) or [Remix] tags from the artist string and move to title
     artist_tags = []
 
-    def extract_remix(m):
+    def extract_remix(m: re.Match[str]) -> str:
         artist_tags.append(m.group(1).strip())
         return ""
 
-    artist = re.sub(
-        r"\s*([\(\[]remix[\)\]])", extract_remix, artist, flags=re.IGNORECASE
-    )
+    artist = re.sub(r"\s*([\(\[]remix[\)\]])", extract_remix, artist, flags=re.IGNORECASE)
 
     # Also strip trailing " Remix" if the performer string ends with it
-    def extract_trailing_remix(m):
+    def extract_trailing_remix(m: re.Match[str]) -> str:
         artist_tags.append(m.group(1).strip())
         return ""
 
-    artist = re.sub(
-        r"\s+(remix)$", extract_trailing_remix, artist, flags=re.IGNORECASE
-    ).strip()
+    artist = re.sub(r"\s+(remix)$", extract_trailing_remix, artist, flags=re.IGNORECASE).strip()
 
     all_tags = global_tags + artist_tags
     if all_tags:

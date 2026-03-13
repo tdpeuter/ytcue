@@ -1,5 +1,5 @@
 import re
-from typing import List, Tuple, Optional
+from typing import Optional
 
 # Common separators between timestamp and track info
 TIMESTAMP_SEPARATORS = r"[\-\–\—\―\:\|\s]+"
@@ -13,7 +13,7 @@ TIMESTAMP_PATTERN = re.compile(
 )
 
 
-def parse_lines(lines: List[str]) -> List[Tuple[str, str]]:
+def parse_lines(lines: list[str]) -> list[tuple[str, str]]:
     """
     Parses a list of text lines, extracting the timestamp and the remaining text.
     Returns a list of tuples: (timestamp_string, remaining_raw_text).
@@ -40,7 +40,7 @@ def parse_lines(lines: List[str]) -> List[Tuple[str, str]]:
     return parsed
 
 
-def parse_lines_with_labels(lines: List[str]) -> List[Tuple[str, str, Optional[str]]]:
+def parse_lines_with_labels(lines: list[str]) -> list[tuple[str, str, Optional[str]]]:
     """
     Parses a list of text lines, extracting timestamp, track text, and an optional
     label/publisher from the line immediately following a timestamped track.

@@ -52,3 +52,11 @@ ytcomments "https://youtube..." | ytcue -a mix.flac > mix.cue
 - **[Usage Guide](docs/usage.md)** — Detailed tool reference, options, and composition examples
 - **[Parsing Heuristics](docs/heuristics.md)** — How the parser splits artists, titles, and handles edge cases
 - **[MusicBee Compatibility](docs/musicbee.md)** — CUE sheet format requirements for MusicBee
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to get started.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

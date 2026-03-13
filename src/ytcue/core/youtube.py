@@ -1,9 +1,10 @@
 """Shared YouTube fetching utilities using yt-dlp."""
 
-import sys
 import signal
-import yt_dlp
+import sys
+from typing import Any, Optional
 
+import yt_dlp
 
 # Warnings that are noisy but not actionable by the user
 _SUPPRESSED_WARNINGS = [
@@ -15,13 +16,13 @@ _SUPPRESSED_WARNINGS = [
 COMMENT_FETCH_TIMEOUT = 30
 
 
-class _CommentFetchTimeout(Exception):
+class _CommentFetchTimeoutError(Exception):
     """Raised when comment fetching exceeds the timeout."""
 
     pass
 
 
-def _filter_warnings(msg):
+def _filter_warnings(msg: str) -> None:
     """Suppress known benign yt-dlp warnings."""
     if any(suppressed in msg for suppressed in _SUPPRESSED_WARNINGS):
         return
@@ -31,21 +32,21 @@ def _filter_warnings(msg):
 class QuietLogger:
     """A logger that suppresses debug/info output and filters known warnings."""
 
-    def debug(self, msg):
+    def debug(self, msg: str) -> None:
         pass
 
-    def info(self, msg):
+    def info(self, msg: str) -> None:
         pass
 
-    def warning(self, msg):
+    def warning(self, msg: str) -> None:
         _filter_warnings(msg)
 
-    def error(self, msg):
+    def error(self, msg: str) -> None:
         print(msg, file=sys.stderr)
 
 
-def _timeout_handler(signum, frame):
-    raise _CommentFetchTimeout()
+def _timeout_handler(signum: int, frame: Any) -> None:
+    raise _CommentFetchTimeoutError()
 
 
 def fetch_video_info(
@@ -53,7 +54,7 @@ def fetch_video_info(
     get_comments: bool = False,
     max_comments: int = 100,
     timeout: int = COMMENT_FETCH_TIMEOUT,
-) -> dict | None:
+) -> Optional[dict[str, Any]]:
     """
     Fetches video info from YouTube. Supports both URLs and search queries.
 
@@ -90,8 +91,8 @@ def fetch_video_info(
 
     try:
         if use_timeout:
-            old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
-            signal.alarm(timeout)
+            old_handler = signal.signal(signal.SIGALRM, _timeout_handler)  # type: ignore
+            signal.alarm(timeout)  # type: ignore
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(query_or_url, download=False)
@@ -121,7 +122,7 @@ def fetch_video_info(
                 "description": info.get("description", "") or "",
                 "comments": comments,
             }
-    except _CommentFetchTimeout:
+    except _CommentFetchTimeoutError:
         print(
             f"Warning: Comment fetching timed out after {timeout}s. Skipping comments.",
             file=sys.stderr,
@@ -135,5 +136,5 @@ def fetch_video_info(
         return None
     finally:
         if use_timeout:
-            signal.alarm(0)
-            signal.signal(signal.SIGALRM, old_handler)
+            signal.alarm(0)  # type: ignore
+            signal.signal(signal.SIGALRM, old_handler)  # type: ignore

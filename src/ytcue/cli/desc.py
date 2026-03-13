@@ -6,7 +6,7 @@ import sys
 from ytcue.core.youtube import fetch_video_info
 
 
-def main():
+def main() -> None:
     """CLI entry point for ytdesc: fetches and prints a YouTube description to stdout."""
     parser = argparse.ArgumentParser(
         description="Fetch the description of a YouTube video and print it to stdout."

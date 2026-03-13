@@ -1,9 +1,9 @@
 """Comprehensive tests for the comments and youtube modules, including negative edge cases."""
 
 from unittest.mock import patch
-from ytcue.core.comments import find_tracklist_comment
-from ytcue.core.youtube import fetch_video_info, _filter_warnings
 
+from ytcue.core.comments import find_tracklist_comment
+from ytcue.core.youtube import _filter_warnings, fetch_video_info
 
 # ── find_tracklist_comment tests ──────────────────────────────────────
 
@@ -103,8 +103,8 @@ def test_filter_warnings_passes_unknown(capsys):
 def test_fetch_video_info_returns_none_on_exception():
     """yt-dlp throwing should return None, not crash."""
     with patch("yt_dlp.YoutubeDL") as mock_ydl:
-        mock_ydl.return_value.__enter__.return_value.extract_info.side_effect = (
-            Exception("network error")
+        mock_ydl.return_value.__enter__.return_value.extract_info.side_effect = Exception(
+            "network error"
         )
         result = fetch_video_info("http://example.com")
         assert result is None
@@ -121,9 +121,7 @@ def test_fetch_video_info_returns_none_on_no_info():
 def test_fetch_video_info_empty_search_results():
     """Search with no results returns None."""
     with patch("yt_dlp.YoutubeDL") as mock_ydl:
-        mock_ydl.return_value.__enter__.return_value.extract_info.return_value = {
-            "entries": []
-        }
+        mock_ydl.return_value.__enter__.return_value.extract_info.return_value = {"entries": []}
         result = fetch_video_info("some search query")
         assert result is None
 
@@ -158,8 +156,6 @@ def test_fetch_video_info_no_description():
 def test_fetch_video_info_keyboard_interrupt():
     """Ctrl+C during fetch returns None gracefully."""
     with patch("yt_dlp.YoutubeDL") as mock_ydl:
-        mock_ydl.return_value.__enter__.return_value.extract_info.side_effect = (
-            KeyboardInterrupt()
-        )
+        mock_ydl.return_value.__enter__.return_value.extract_info.side_effect = KeyboardInterrupt()
         result = fetch_video_info("http://example.com")
         assert result is None

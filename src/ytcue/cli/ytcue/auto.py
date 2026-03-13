@@ -1,10 +1,13 @@
-"""Fully autonomous mode: recursively processes directories, generating CUE sheets without user interaction."""
+"""Fully autonomous mode: recursively processes directories, generating CUE sheets.
+No user interaction required."""
 
 import argparse
 import sys
 from pathlib import Path
 
-from ytcue.core.youtube import fetch_video_info
+from ytcue.cli.parser import process_input
+from ytcue.core.comments import find_tracklist_comment
+from ytcue.core.cue import generate_cue_sheet
 from ytcue.core.metadata import (
     get_audio_search_query,
     get_audio_title,
@@ -12,9 +15,7 @@ from ytcue.core.metadata import (
     write_grouping_tag,
 )
 from ytcue.core.parser import parse_lines
-from ytcue.core.comments import find_tracklist_comment
-from ytcue.cli.parser import process_input
-from ytcue.core.cue import generate_cue_sheet
+from ytcue.core.youtube import fetch_video_info
 
 
 def process_single_file(
@@ -94,9 +95,12 @@ def process_single_file(
         return False
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Fully autonomous: recursively scan a directory and generate CUE sheets for all audio files.",
+        description=(
+            "Fully autonomous: recursively scan a directory and generate CUE sheets "
+            "for all audio files."
+        ),
     )
     parser.add_argument(
         "path",
