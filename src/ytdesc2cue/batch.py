@@ -250,7 +250,7 @@ def main():
                 cue_content = generate_cue_sheet(mix, args.separator)
 
                 cue_path = audio_file.with_suffix(".cue")
-                cue_path.write_text(cue_content, encoding="utf-8")
+                cue_path.write_text(cue_content, encoding="utf-8-sig")
                 print(f"Successfully created {cue_path.name}")
                 break  # Done with this file, move to next
             except Exception as e:

@@ -126,10 +126,14 @@ def main():
                 print("Aborted.", file=sys.stderr)
                 sys.exit(0)
 
-        args.output.write_text(cue_content, encoding="utf-8")
+        args.output.write_text(cue_content, encoding="utf-8-sig")
         print(f"Successfully wrote CUE sheet to {args.output}", file=sys.stderr)
     else:
         # Print to stdout
+        # stdout handles its own encoding, but we should probably encode to utf-8 if piping?
+        # sys.stdout.write normally takes a string and encodes to sys.stdout.encoding.
+        # But if we want emojis to work in bash stdout on Windows, it might be tricky.
+        # Python 3 handles this decently.
         sys.stdout.write(cue_content)
 
 
