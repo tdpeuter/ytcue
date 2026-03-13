@@ -80,7 +80,7 @@ def main():
         # It's a local audio file — derive a search query from its tags
         print(f"Reading metadata from {source_path.name}...", file=sys.stderr)
         query = get_audio_search_query(source_path)
-        print(f"Searching YouTube for: \"{query}\"...", file=sys.stderr)
+        print(f'Searching YouTube for: "{query}"...', file=sys.stderr)
         source = query
         if not audio_name:
             audio_name = source_path.name
@@ -105,7 +105,9 @@ def main():
             parsed = parse_lines(desc_lines)
             if parsed:
                 lines = desc_lines
-                print(f"Found {len(parsed)} timestamps in description.", file=sys.stderr)
+                print(
+                    f"Found {len(parsed)} timestamps in description.", file=sys.stderr
+                )
 
     # Step 3: Fallback to comments
     if not lines:
@@ -130,7 +132,10 @@ def main():
             print(f"Error during comment fetching: {e}", file=sys.stderr)
 
     if not lines:
-        print("Error: Could not find a tracklist in description or comments.", file=sys.stderr)
+        print(
+            "Error: Could not find a tracklist in description or comments.",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     # Step 4: Process and generate CUE

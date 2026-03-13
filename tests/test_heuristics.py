@@ -143,18 +143,21 @@ def test_extract_feat_artists():
     assert extract_feat_artists(
         "Track (featuring Guest)", "Artist", extract_feat=True
     ) == ("Artist; Guest", "Track")
-    assert extract_feat_artists(
-        "Track [feat. Guest]", "Artist", extract_feat=True
-    ) == ("Artist; Guest", "Track")
-    assert extract_feat_artists(
-        "Track [ft Guest]", "Artist", extract_feat=True
-    ) == ("Artist; Guest", "Track")
+    assert extract_feat_artists("Track [feat. Guest]", "Artist", extract_feat=True) == (
+        "Artist; Guest",
+        "Track",
+    )
+    assert extract_feat_artists("Track [ft Guest]", "Artist", extract_feat=True) == (
+        "Artist; Guest",
+        "Track",
+    )
     assert extract_feat_artists(
         "Track (with Vocalist)", "Artist", extract_feat=True
     ) == ("Artist; Vocalist", "Track")
-    assert extract_feat_artists(
-        "Track (w/ DJ Foo)", "Artist", extract_feat=True
-    ) == ("Artist; DJ Foo", "Track")
+    assert extract_feat_artists("Track (w/ DJ Foo)", "Artist", extract_feat=True) == (
+        "Artist; DJ Foo",
+        "Track",
+    )
     assert extract_feat_artists(
         "Track (prod. Producer)", "Artist", extract_feat=True
     ) == ("Artist; Producer", "Track")

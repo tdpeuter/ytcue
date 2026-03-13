@@ -29,7 +29,9 @@ def process_input(lines: list, format_guess: str, extract_feat: bool) -> Mix:
         artist, title = split_track_string(
             raw_text, format_guess, extract_feat, primary_separator
         )
-        tracks.append(Track(start_time_str=timestamp, artist=artist, title=title, label=label))
+        tracks.append(
+            Track(start_time_str=timestamp, artist=artist, title=title, label=label)
+        )
 
     # Dot-stripping heuristic: if most tracks end with a dot, remove it.
     dot_count = sum(1 for t in tracks if t.title.endswith("."))
@@ -129,7 +131,9 @@ def main():
         mix.audio_file = Path(args.audio)
 
     # Generate CUE
-    cue_content = generate_cue_sheet(mix, args.separator, include_labels=args.include_labels)
+    cue_content = generate_cue_sheet(
+        mix, args.separator, include_labels=args.include_labels
+    )
 
     # Output handling
     if args.output:

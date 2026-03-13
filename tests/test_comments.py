@@ -103,8 +103,8 @@ def test_filter_warnings_passes_unknown(capsys):
 def test_fetch_video_info_returns_none_on_exception():
     """yt-dlp throwing should return None, not crash."""
     with patch("yt_dlp.YoutubeDL") as mock_ydl:
-        mock_ydl.return_value.__enter__.return_value.extract_info.side_effect = Exception(
-            "network error"
+        mock_ydl.return_value.__enter__.return_value.extract_info.side_effect = (
+            Exception("network error")
         )
         result = fetch_video_info("http://example.com")
         assert result is None

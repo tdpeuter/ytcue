@@ -95,5 +95,9 @@ def test_generate_cue_no_performer():
     )
     cue = generate_cue_sheet(mix)
     lines = cue.splitlines()
-    track_lines = [line for line in lines if line.strip().startswith("PERFORMER") and "Various" not in line]
+    track_lines = [
+        line
+        for line in lines
+        if line.strip().startswith("PERFORMER") and "Various" not in line
+    ]
     assert len(track_lines) == 0

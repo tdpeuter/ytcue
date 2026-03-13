@@ -17,6 +17,7 @@ COMMENT_FETCH_TIMEOUT = 30
 
 class _CommentFetchTimeout(Exception):
     """Raised when comment fetching exceeds the timeout."""
+
     pass
 
 

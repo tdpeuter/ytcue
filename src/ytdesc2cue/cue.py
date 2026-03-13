@@ -32,7 +32,9 @@ def _escape_cue_string(value: str) -> str:
     return value.replace('"', "'")
 
 
-def generate_cue_sheet(mix: Mix, artist_separator: str = "; ", include_labels: bool = False) -> str:
+def generate_cue_sheet(
+    mix: Mix, artist_separator: str = "; ", include_labels: bool = False
+) -> str:
     """
     Generates a MusicBee-compatible CUE sheet from a Mix object.
 

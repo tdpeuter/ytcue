@@ -39,7 +39,7 @@ def process_single_file(
 
     # Step 1: Search YouTube
     query = get_audio_search_query(audio_file)
-    print(f"    Searching: \"{query}\"...", file=sys.stderr)
+    print(f'    Searching: "{query}"...', file=sys.stderr)
     info = fetch_video_info(query)
 
     if not info:
@@ -132,7 +132,10 @@ def main():
         help="Max comments to scan per video. Default: 100.",
     )
     parser.add_argument(
-        "-y", "--yes", action="store_true", help="Overwrite existing CUE files.",
+        "-y",
+        "--yes",
+        action="store_true",
+        help="Overwrite existing CUE files.",
     )
 
     args = parser.parse_args()

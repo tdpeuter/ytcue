@@ -46,7 +46,10 @@ def main():
         help="Include record label/publisher info as REM LABEL comments in the CUE sheet.",
     )
     parser.add_argument(
-        "-y", "--yes", action="store_true", help="Overwrite existing CUE files without asking."
+        "-y",
+        "--yes",
+        action="store_true",
+        help="Overwrite existing CUE files without asking.",
     )
 
     args = parser.parse_args()
@@ -99,9 +102,11 @@ def main():
                 print("\nNo timestamps found in the video description.")
 
                 # Interactive comment fallback
-                try_comments = input(
-                    "Try fetching tracklist from comments? [y/N/s(kip)]: "
-                ).strip().lower()
+                try_comments = (
+                    input("Try fetching tracklist from comments? [y/N/s(kip)]: ")
+                    .strip()
+                    .lower()
+                )
 
                 if try_comments == "s":
                     print("Skipping...")
@@ -129,7 +134,9 @@ def main():
                         print(f"Error fetching comments: {e}")
 
                 if not parsed:
-                    print("\nYou can also paste a tracklist below (press Enter twice when done).")
+                    print(
+                        "\nYou can also paste a tracklist below (press Enter twice when done)."
+                    )
                     print(
                         "Or just press Enter immediately to retry a different search/URL."
                     )
@@ -189,11 +196,19 @@ def main():
             # Generate CUE
             try:
                 mix.audio_file = audio_file
-                cue_content = generate_cue_sheet(mix, args.separator, include_labels=args.include_labels)
+                cue_content = generate_cue_sheet(
+                    mix, args.separator, include_labels=args.include_labels
+                )
 
                 cue_path = audio_file.with_suffix(".cue")
                 if cue_path.exists() and not args.yes:
-                    overwrite = input(f"Warning: {cue_path.name} already exists. Overwrite? [y/N]: ").strip().lower()
+                    overwrite = (
+                        input(
+                            f"Warning: {cue_path.name} already exists. Overwrite? [y/N]: "
+                        )
+                        .strip()
+                        .lower()
+                    )
                     if overwrite not in ["y", "yes"]:
                         print("Skipping write...")
                         break

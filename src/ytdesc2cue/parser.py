@@ -8,8 +8,8 @@ TIMESTAMP_SEPARATORS = r"[\-\–\—\―\:\|\s]+"
 # Followed by optional separators and then the track text
 TIMESTAMP_PATTERN = re.compile(
     r"^\[?(?:(\d{1,2})[:.])?\s*(\d{1,2})[:.]\s*(\d{2})\]?"  # Timestamp
-    rf"(?:{TIMESTAMP_SEPARATORS})?"                        # Optional separator
-    r"(.*)$"                                                # Remaining text
+    rf"(?:{TIMESTAMP_SEPARATORS})?"  # Optional separator
+    r"(.*)$"  # Remaining text
 )
 
 
