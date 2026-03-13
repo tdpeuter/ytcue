@@ -210,12 +210,26 @@ def main():
                 else:
                     continue  # User pressed enter immediately to skip/retry
 
-            print(f"\nFound {len(parsed)} tracks.")
-            print("First 3 tracks preview:")
-            for ts, txt in parsed[:3]:
-                print(f"  [{ts}] {txt}")
-            if len(parsed) > 3:
-                print("  ...")
+            # Generate the Mix object early to preview parsing heuristics
+            try:
+                mix = process_input(lines, args.format, args.extract_feat)
+                tracks = mix.tracks
+            except Exception as e:
+                print(f"Error parsing tracklist: {e}")
+                continue
+
+            print(f"\nFound {len(tracks)} tracks.")
+            if len(tracks) > 0:
+                print("First 3 tracks parsed preview:")
+                for track in tracks[:3]:
+                    # Build string for artist and title, taking care of empty artist
+                    track_repr = f"[{track.start_time_str}] "
+                    if track.artist:
+                        track_repr += f"{track.artist} - "
+                    track_repr += track.title
+                    print(f"  {track_repr}")
+                if len(tracks) > 3:
+                    print("  ...")
 
             confirm = (
                 input(
@@ -232,7 +246,6 @@ def main():
 
             # Generate CUE
             try:
-                mix = process_input(lines, args.format, args.extract_feat)
                 mix.audio_file = audio_file  # Associate with the actual audio file name
                 cue_content = generate_cue_sheet(mix, args.separator)
 
@@ -243,3 +256,7 @@ def main():
             except Exception as e:
                 print(f"Error generating CUE sheet: {e}")
                 break
+
+if __name__ == "__main__":
+    main()
+
