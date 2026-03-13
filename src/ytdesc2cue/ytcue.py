@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from ytdesc2cue.youtube import fetch_video_info
-from ytdesc2cue.metadata import get_audio_search_query, get_audio_title
+from ytdesc2cue.metadata import get_audio_search_query, get_audio_title, write_grouping_tag
 from ytdesc2cue.parser import parse_lines
 from ytdesc2cue.comments import find_tracklist_comment
 from ytdesc2cue.cli import process_input
@@ -162,6 +162,13 @@ def main():
 
         output_path.write_text(cue_content, encoding="utf-8-sig")
         print(f"Successfully wrote CUE sheet to {output_path}", file=sys.stderr)
+
+        # Write grouping tag to the audio file metadata
+        if source_path.exists() and source_path.is_file():
+            if write_grouping_tag(source_path, mix.title or "YouTube Mix"):
+                print(
+                    f"Wrote grouping tag to {source_path.name}", file=sys.stderr
+                )
     else:
         sys.stdout.write(cue_content)
 

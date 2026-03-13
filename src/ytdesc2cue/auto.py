@@ -9,6 +9,7 @@ from ytdesc2cue.metadata import (
     get_audio_search_query,
     get_audio_title,
     get_missing_cue_files_recursive,
+    write_grouping_tag,
 )
 from ytdesc2cue.parser import parse_lines
 from ytdesc2cue.comments import find_tracklist_comment
@@ -85,6 +86,7 @@ def process_single_file(
 
         cue_content = generate_cue_sheet(mix, separator, include_labels=include_labels)
         cue_path.write_text(cue_content, encoding="utf-8-sig")
+        write_grouping_tag(audio_file, mix.title or "YouTube Mix")
         print(f"    ✓ Created {cue_path.name}", file=sys.stderr)
         return True
     except Exception as e:
