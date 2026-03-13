@@ -1,0 +1,23 @@
+[project]
+name = "ytdesc2cue"
+version = "0.1.0"
+description = "Convert YouTube descriptions into MusicBee-compatible CUE sheets."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "yt-dlp",
+    "tinytag"
+]
+
+[project.scripts]
+ytdesc2cue = "ytdesc2cue.cli:main"
+ytcue-batch = "ytdesc2cue.batch:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.9.0",
+]

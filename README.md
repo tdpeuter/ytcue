@@ -1,0 +1,82 @@
+# ytdesc2cue
+
+*Note: This repository was written as an experiment exploring AI-assisted development with Google Antigravity.*
+
+A Python CLI tool that converts YouTube tracklist descriptions (with timestamps) into MusicBee-compatible CUE sheets. Designed with the Unix DOTADIW (Do One Thing and Do It Well) philosophy in mind.
+
+## Installation
+
+This project is managed with `uv`. To install it or run it from the source directory:
+
+```bash
+uv pip install -e .
+```
+
+Or just run the module directly if `src` is in your `PYTHONPATH`:
+```bash
+python -m ytdesc2cue.cli --help
+```
+
+## Usage
+
+Basic usage with a text file containing a YouTube description:
+```bash
+ytdesc2cue description.txt -a mix.flac -o final.cue
+```
+
+### Options
+
+- `-a, --audio`: The name of the audio file to reference in the CUE sheet (e.g., `mix.flac`). Default is `audio.flac`.
+- `-o, --output`: The output CUE file. If omitted, prints to standard output (stdout), useful for piping.
+- `-f, --format`: Heuristic for splitting artist and title. `auto` tries to guess, but you can force `artist-title` or `title-artist`.
+- `-s, --separator`: The separator to use between multiple artists in the `PERFORMER` field. Default is `; ` which provides excellent MusicBee compatibility.
+- `--extract-feat`: Explicitly enables the extraction of `(feat. XYZ)` from track titles into the artist list (disabled by default).
+- `-y, --yes`: Automatically overwrite the output file without prompting.
+
+### **Important Note Regarding Non-Tracklist Text**
+When scraping descriptions from YouTube or other sites, you will often encounter promotional text, links, and other non-tracklist text within the description block.
+**The `ytdesc2cue` parser handles this gracefully automatically.** It ignores any text line that does not strictly begin with a timestamp block (e.g., `[04:20]` or `12:30:15`). You can safely pipe the entire raw YouTube description string into the program without needing to manually sanitize the input first!
+
+### **Important Note Regarding YouTube JavaScript Runtimes**
+Recent changes to YouTube often require `yt-dlp` to utilize a JavaScript interpreter to securely fetch metadata without getting blocked. `ytcue-batch` will automatically suppress the benign "No supported JavaScript runtime could be found" warning to keep your console clean.
+However, if YouTube starts failing to fetch descriptions (returning "No description found"), you should install **Deno** (or Node.js 20+) to your system PATH to allow `yt-dlp` to execute YouTube's JS challenges.
+- **Windows:** `winget install --id=DenoLand.Deno`
+- **Linux:** `curl -fsSL https://deno.land/install.sh | sh`
+
+## DOTADIW / Pipeline Workflow
+
+`ytdesc2cue` reads from standard input (`stdin`) if no input file is provided. This makes it perfect to insert into your audio processing pipelines alongside tools like `yt-dlp`.
+
+**Example Workflow:**
+
+1. Use `yt-dlp` to download the audio and the description:
+```bash
+yt-dlp -x --audio-format flac --write-description -o "mymix.%(ext)s" "https://www.youtube.com/watch?v=..."
+```
+*(This produces `mymix.flac` and `mymix.description`)*
+
+2. Pipe the description into `ytdesc2cue` to generate the CUE sheet:
+```bash
+cat mymix.description | ytdesc2cue -a mymix.flac -o mymix.cue
+```
+
+## Batch Wrapper (`ytcue-batch`)
+
+This package also ships with a continuous loop interactive wrapper orchestrator called `ytcue-batch`. This tool sits on top of `ytdesc2cue` and `yt-dlp` to provide a Human-in-the-loop workflow for directories of music that need CUE generation.
+
+**Usage:**
+```bash
+# Process an entire folder
+ytcue-batch ./my_mix_folder/
+
+# Or process a single file
+ytcue-batch ./my_mix_folder/mymix.flac
+```
+
+The script will scan the given path for audio files missing a `.cue` sheet. For each missing file, it will:
+1. Extract metadata from your audio file using `tinytag` to build a smart YouTube search query.
+2. Prompt you for a YouTube URL. **If you press Enter, it will automatically search YouTube using the metadata query and select the top result!** You can also press `s` to skip the file.
+3. Fetch the YouTube description securely via `yt-dlp`.
+4. **Fallback:** If the description doesn't contain a tracklist, it will print the URL so you can check the pinned comments. You can then copy the comment and paste it directly into the terminal!
+5. Preview the tracklist and show exactly what will be parsed.
+6. Ask for confirmation (`[Y to generate / n to retry / s to skip]`). If you type `n`, you can try providing a specific URL instead. If `Y`, it will generate the CUE sheet in-place next to the audio file.
