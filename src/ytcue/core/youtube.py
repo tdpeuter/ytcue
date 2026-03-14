@@ -91,8 +91,10 @@ def fetch_video_info(
 
     try:
         if use_timeout:
-            old_handler = signal.signal(signal.SIGALRM, _timeout_handler)  # type: ignore
-            signal.alarm(timeout)  # type: ignore
+            # Use getattr to avoid mypy errors on Windows where these don't exist
+            sig_alrm = getattr(signal, "SIGALRM")
+            old_handler = signal.signal(sig_alrm, _timeout_handler)
+            getattr(signal, "alarm")(timeout)
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(query_or_url, download=False)
@@ -136,5 +138,5 @@ def fetch_video_info(
         return None
     finally:
         if use_timeout:
-            signal.alarm(0)  # type: ignore
-            signal.signal(signal.SIGALRM, old_handler)  # type: ignore
+            getattr(signal, "alarm")(0)
+            signal.signal(getattr(signal, "SIGALRM"), old_handler)
