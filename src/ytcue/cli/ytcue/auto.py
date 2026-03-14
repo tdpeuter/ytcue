@@ -9,9 +9,9 @@ from ytcue.cli.parser import process_input
 from ytcue.core.comments import find_tracklist_comment
 from ytcue.core.cue import generate_cue_sheet
 from ytcue.core.metadata import (
+    gather_audio_files,
     get_audio_search_query,
     get_audio_title,
-    get_missing_cue_files_recursive,
     write_grouping_tag,
 )
 from ytcue.core.parser import parse_lines
@@ -103,9 +103,10 @@ def main() -> None:
         ),
     )
     parser.add_argument(
-        "path",
+        "paths",
         type=Path,
-        help="Directory to scan recursively for audio files.",
+        nargs="+",
+        help="Paths to audio files or directories to scan recursively.",
     )
     parser.add_argument(
         "-f",
@@ -145,15 +146,10 @@ def main() -> None:
     )
 
     args = parser.parse_args()
-
-    if not args.path.is_dir():
-        print(f"Error: {args.path} is not a directory.", file=sys.stderr)
-        sys.exit(1)
-
-    audio_files = get_missing_cue_files_recursive(args.path)
+    audio_files = gather_audio_files(args.paths, recursive=True)
 
     if not audio_files:
-        print(f"No audio files missing CUE sheets found in {args.path}.")
+        print("No audio files missing CUE sheets found in the provided paths.")
         sys.exit(0)
 
     print(f"Found {len(audio_files)} audio file(s) missing CUE sheets.\n")

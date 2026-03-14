@@ -1,4 +1,5 @@
 """Audio file metadata utilities."""
+
 import sys
 from pathlib import Path
 from typing import Any
@@ -64,6 +65,28 @@ def get_missing_cue_files_recursive(directory: Path) -> list[Path]:
             if not cue_path.exists():
                 audio_files.append(f)
     return sorted(audio_files)
+
+
+def gather_audio_files(paths: list[Path], recursive: bool = False) -> list[Path]:
+    """
+    Gathers a unique list of audio files missing CUE sheets from a list of paths.
+    Paths can be individual files or directories.
+    """
+    audio_files = set()
+    for path in paths:
+        if path.is_file():
+            if path.suffix.lower() in AUDIO_EXTENSIONS:
+                cue_path = path.with_suffix(".cue")
+                if not cue_path.exists():
+                    audio_files.add(path)
+        elif path.is_dir():
+            if recursive:
+                found = get_missing_cue_files_recursive(path)
+            else:
+                found = get_missing_cue_files(path)
+            audio_files.update(found)
+
+    return sorted(list(audio_files))
 
 
 def write_grouping_tag(filepath: Path, grouping: str) -> bool:

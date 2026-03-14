@@ -4,14 +4,14 @@
 
 ### `ytcue` — All-in-One
 
-The simplest way to generate a CUE sheet. Give it a URL or an audio file:
+The simplest way to generate a CUE sheet. Give it one or more URLs or audio files (auto-generates .cue files for each):
 
 ```bash
-# From a local audio file (auto-searches YouTube, writes mix.cue next to it)
+# From a local audio file
 ytcue mix.flac
 
-# From a YouTube URL
-ytcue "https://youtube.com/watch?v=..." -a mix.flac -o mix.cue
+# From multiple files and URLs
+ytcue mix1.flac mix2.mp3 "https://youtube.com/watch?v=..."
 ```
 
 **What it does:**
@@ -23,10 +23,10 @@ ytcue "https://youtube.com/watch?v=..." -a mix.flac -o mix.cue
 
 ### `ytcue-batch` — Interactive Batch
 
-Process an entire directory of audio files missing CUE sheets with human-in-the-loop confirmation:
+Process directories or specific audio files missing CUE sheets with human-in-the-loop confirmation:
 
 ```bash
-ytcue-batch ./my_mixes/
+ytcue-batch ./my_mixes/ file1.mp3 file2.m4a
 ```
 
 For each file, it will:
@@ -37,10 +37,10 @@ For each file, it will:
 
 ### `ytcue-auto` — Fully Autonomous
 
-Zero-interaction recursive processing:
+Zero-interaction recursive processing for directories or specific files:
 
 ```bash
-ytcue-auto ./music_library/
+ytcue-auto ./music_library/ some_other_mix.mp3
 ```
 
 For every audio file missing a `.cue` sheet (recursively), it will:

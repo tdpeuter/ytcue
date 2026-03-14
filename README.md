@@ -15,17 +15,14 @@ For full YouTube compatibility, install [Deno](https://deno.land/) (`winget inst
 ## Quick Start
 
 ```bash
-# From a local audio file (auto-searches YouTube, writes mix.cue)
-ytcue mix.flac
+# From multiple local audio files (auto-searches each, writes .cue files)
+ytcue track1.mp3 track2.flac URL1
 
-# From a YouTube URL
-ytcue "https://youtube.com/watch?v=..." -a mix.flac -o mix.cue
+# Batch: interactively process folders or multiple files
+ytcue-batch ./my_mixes/ file1.mp3
 
-# Batch: interactively process a directory
-ytcue-batch ./my_mixes/
-
-# Fully autonomous: recursively process everything
-ytcue-auto ./music_library/
+# Fully autonomous: recursively process directories or multiple files
+ytcue-auto ./music_library/ file1.mp3
 ```
 
 ## Tool Suite

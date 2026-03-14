@@ -8,8 +8,8 @@ from ytcue.cli.parser import process_input
 from ytcue.core.comments import find_tracklist_comment
 from ytcue.core.cue import generate_cue_sheet
 from ytcue.core.metadata import (
+    gather_audio_files,
     get_audio_search_query,
-    get_missing_cue_files,
     write_grouping_tag,
 )
 from ytcue.core.parser import parse_lines
@@ -24,9 +24,10 @@ def main() -> None:
         )
     )
     parser.add_argument(
-        "path",
+        "paths",
         type=Path,
-        help="Directory containing audio files, or a single audio file.",
+        nargs="+",
+        help="Paths to audio files or directories containing audio files.",
     )
     parser.add_argument(
         "-f",
@@ -60,18 +61,10 @@ def main() -> None:
     )
 
     args = parser.parse_args()
-
-    audio_files = []
-    if args.path.is_file():
-        audio_files = [args.path]
-    elif args.path.is_dir():
-        audio_files = get_missing_cue_files(args.path)
-    else:
-        print(f"Error: {args.path} is not a valid file or directory.", file=sys.stderr)
-        sys.exit(1)
+    audio_files = gather_audio_files(args.paths, recursive=False)
 
     if not audio_files:
-        print(f"No audio files missing CUE sheets found in {args.path}.")
+        print("No audio files missing CUE sheets found in the provided paths.")
         sys.exit(0)
 
     print(f"Found {len(audio_files)} audio file(s) missing CUE sheets.")
@@ -83,8 +76,7 @@ def main() -> None:
 
         while True:
             url_or_query = input(
-                f"Provide YouTube URL (Enter to auto-search: \"{search_query}\", "
-                "or 's' to skip): "
+                f"Provide YouTube URL (Enter to auto-search: \"{search_query}\", or 's' to skip): "
             ).strip()
 
             if url_or_query.lower() == "s":
@@ -111,9 +103,7 @@ def main() -> None:
 
                 # Interactive comment fallback
                 try_comments = (
-                    input("Try fetching tracklist from comments? [y/N/s(kip)]: ")
-                    .strip()
-                    .lower()
+                    input("Try fetching tracklist from comments? [y/N/s(kip)]: ").strip().lower()
                 )
 
                 if try_comments == "s":
