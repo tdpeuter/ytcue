@@ -3,6 +3,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional
 
+from ytcue.core.models import Track
+
 
 class Severity(Enum):
     WARNING = "WARNING"
@@ -80,3 +82,41 @@ def format_summary(results: list[ProcessingResult]) -> str:
                 lines.append(f"  {diag}")
 
     return "\n".join(lines)
+
+
+def _parse_timestamp_to_seconds(timestamp: str) -> float:
+    """Converts HH:MM:SS or MM:SS to total seconds."""
+    parts = timestamp.split(":")
+    if len(parts) == 3:
+        h, m, s = map(int, parts)
+        return h * 3600 + m * 60 + s
+    elif len(parts) == 2:
+        m, s = map(int, parts)
+        return m * 60 + s
+    return 0.0
+
+
+def validate_timestamps(tracks: list[Track], duration_seconds: float) -> list[Diagnostic]:
+    """
+    Checks if any track's timestamp exceeds the audio file's duration.
+    Returns a list of Diagnostics for any that do.
+    """
+    diagnostics = []
+    # Add a 5 second grace period for rounding differences
+    threshold = duration_seconds + 5.0
+
+    for i, track in enumerate(tracks, 1):
+        track_seconds = _parse_timestamp_to_seconds(track.start_time_str)
+        if track_seconds > threshold:
+            # Format audio duration for the message
+            m, s = divmod(int(duration_seconds), 60)
+            h, m = divmod(m, 60)
+            if h > 0:
+                dur_str = f"{h:02d}:{m:02d}:{s:02d}"
+            else:
+                dur_str = f"{m:02d}:{s:02d}"
+
+            msg = f"Timestamp ({track.start_time_str}) exceeds audio duration ({dur_str})"
+            diagnostics.append(Diagnostic(Severity.WARNING, msg, track_index=i))
+
+    return diagnostics

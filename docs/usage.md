@@ -138,6 +138,12 @@ CUE sheets are saved using `UTF-8 with BOM` encoding, ensuring emojis and Unicod
 
 The parser automatically ignores lines that don't begin with a timestamp. You can safely pipe entire raw YouTube descriptions without manual cleanup.
 
+## Diagnostics & Validation
+
+All tools include automated duration validation. By reading the actual duration of the local `.flac` or `.mp3` file, ytcue validates the parsed timestamps to warn you if you are applying a tracklist to the wrong video version.
+
+For more information on error summaries and the warning system, see [Diagnostics & Validation](diagnostics.md).
+
 ## YouTube JavaScript Runtimes
 
 Recent YouTube changes require `yt-dlp` to use a JavaScript interpreter for metadata extraction. If you see warnings about missing JS runtimes or YouTube fails to return descriptions, install **Deno**:

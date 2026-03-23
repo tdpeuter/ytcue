@@ -77,3 +77,59 @@ def test_format_summary_with_mixed_results():
 
     # Success without diagnostics should NOT be in the details section
     assert "success.mp3" not in summary.split("--- Details ---")[1]
+
+
+def test_validate_timestamps_valid():
+    from ytcue.core.diagnostics import validate_timestamps
+    from ytcue.core.models import Track
+
+    tracks = [
+        Track(start_time_str="00:00", artist="A", title="T1"),
+        Track(start_time_str="01:30", artist="A", title="T2"),
+        Track(start_time_str="00:15:00", artist="A", title="T3"),
+    ]
+
+    # Duration is 15 minutes (900 seconds) + 1 second.
+    # Track 3 is exactly at 15:00.
+    diags = validate_timestamps(tracks, 901.0)
+    assert len(diags) == 0
+
+
+def test_validate_timestamps_exceed():
+    from ytcue.core.diagnostics import validate_timestamps
+    from ytcue.core.models import Track
+
+    tracks = [
+        Track(start_time_str="00:00", artist="A", title="T1"),
+        Track(start_time_str="05:30", artist="A", title="T2"),
+        Track(start_time_str="15:30", artist="A", title="T3"),  # Exceeds bounds
+        Track(start_time_str="01:10:00", artist="A", title="T4"), # Exceeds bounds significantly
+    ]
+
+    # Duration is 10 minutes (600 seconds).
+    diags = validate_timestamps(tracks, 600.0)
+    assert len(diags) == 2
+
+    assert diags[0].track_index == 3
+    assert "15:30" in diags[0].message
+    assert "10:00" in diags[0].message  # Should formatted duration 10:00
+
+    assert diags[1].track_index == 4
+    assert "01:10:00" in diags[1].message
+    assert "10:00" in diags[1].message
+
+
+def test_validate_timestamps_grace_period():
+    from ytcue.core.diagnostics import validate_timestamps
+    from ytcue.core.models import Track
+
+    tracks = [
+        Track(start_time_str="10:04", artist="A", title="T1"), # Within grace
+        Track(start_time_str="10:06", artist="A", title="T2"), # Outside grace
+    ]
+
+    # Duration is 10:00 (600 seconds). Grace is 5 seconds.
+    diags = validate_timestamps(tracks, 600.0)
+    assert len(diags) == 1
+    assert diags[0].track_index == 2
+

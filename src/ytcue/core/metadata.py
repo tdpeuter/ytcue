@@ -2,7 +2,7 @@
 
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from tinytag import TinyTag
 
@@ -43,6 +43,17 @@ def get_audio_title(filepath: Path) -> str:
     except Exception:
         pass
     return filepath.stem
+
+
+def get_audio_duration(filepath: Path) -> Optional[float]:
+    """Extracts the duration of the audio file in seconds, if available."""
+    try:
+        tag = TinyTag.get(filepath)
+        if tag.duration is not None:
+            return tag.duration
+    except Exception:
+        pass
+    return None
 
 
 def get_missing_cue_files(directory: Path) -> list[Path]:

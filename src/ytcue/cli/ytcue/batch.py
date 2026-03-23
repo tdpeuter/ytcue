@@ -7,8 +7,10 @@ from pathlib import Path
 from ytcue.cli.parser import process_input
 from ytcue.core.comments import find_tracklist_comment
 from ytcue.core.cue import generate_cue_sheet
+from ytcue.core.diagnostics import validate_timestamps
 from ytcue.core.metadata import (
     gather_audio_files,
+    get_audio_duration,
     get_audio_search_query,
     write_grouping_tag,
 )
@@ -173,6 +175,14 @@ def main() -> None:
                     print(f"  {track_repr}")
                 if len(tracks) > 3:
                     print("  ...")
+
+            duration = get_audio_duration(audio_file)
+            if duration is not None:
+                diags = validate_timestamps(tracks, duration)
+                if diags:
+                    print("\nWarnings:")
+                    for diag in diags:
+                        print(f"  ! {diag}")
 
             confirm = (
                 input("\nDoes this look correct? [Y to generate / n to retry / s to skip]: ")

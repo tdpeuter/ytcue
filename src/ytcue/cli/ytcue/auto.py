@@ -8,9 +8,10 @@ from pathlib import Path
 from ytcue.cli.parser import process_input
 from ytcue.core.comments import find_tracklist_comment
 from ytcue.core.cue import generate_cue_sheet
-from ytcue.core.diagnostics import ProcessingResult, format_summary
+from ytcue.core.diagnostics import ProcessingResult, format_summary, validate_timestamps
 from ytcue.core.metadata import (
     gather_audio_files,
+    get_audio_duration,
     get_audio_search_query,
     get_audio_title,
     write_grouping_tag,
@@ -88,6 +89,14 @@ def process_single_file(
     # Step 4: Generate CUE
     try:
         mix = process_input(lines, format_guess, extract_feat)
+
+        duration = get_audio_duration(audio_file)
+        if duration is not None:
+            diags = validate_timestamps(mix.tracks, duration)
+            for diag in diags:
+                print(f"    ! {diag}", file=sys.stderr)
+                result.diagnostics.append(diag)
+
         mix.audio_file = audio_file
         mix.title = get_audio_title(audio_file) or info.get("title")
 
