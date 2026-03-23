@@ -8,6 +8,7 @@ from pathlib import Path
 from ytcue.cli.parser import process_input
 from ytcue.core.comments import find_tracklist_comment
 from ytcue.core.cue import generate_cue_sheet
+from ytcue.core.diagnostics import ProcessingResult, format_summary
 from ytcue.core.metadata import (
     gather_audio_files,
     get_audio_search_query,
@@ -26,16 +27,17 @@ def process_single_file(
     include_labels: bool = False,
     max_comments: int = 100,
     overwrite: bool = False,
-) -> bool:
+) -> ProcessingResult:
     """
     Autonomously processes a single audio file: search YouTube, fetch tracklist, generate CUE.
-    Returns True on success, False on failure.
+    Returns a ProcessingResult containing success status and any diagnostics.
     """
+    result = ProcessingResult(file_path=audio_file)
     cue_path = audio_file.with_suffix(".cue")
 
     if cue_path.exists() and not overwrite:
         print(f"  Skipping (CUE exists): {audio_file.name}", file=sys.stderr)
-        return False
+        return result
 
     print(f"  Processing: {audio_file.name}", file=sys.stderr)
 
@@ -45,8 +47,10 @@ def process_single_file(
     info = fetch_video_info(query)
 
     if not info:
-        print("    ✗ Could not find video.", file=sys.stderr)
-        return False
+        msg = "Could not find video."
+        print(f"    ✗ {msg}", file=sys.stderr)
+        result.add_error(msg)
+        return result
 
     print(f"    Found: {info['title']}", file=sys.stderr)
 
@@ -76,8 +80,10 @@ def process_single_file(
             pass
 
     if not lines:
-        print("    ✗ No tracklist found.", file=sys.stderr)
-        return False
+        msg = "No tracklist found."
+        print(f"    ✗ {msg}", file=sys.stderr)
+        result.add_error(msg)
+        return result
 
     # Step 4: Generate CUE
     try:
@@ -89,10 +95,15 @@ def process_single_file(
         cue_path.write_text(cue_content, encoding="utf-8-sig")
         write_grouping_tag(audio_file, mix.title or "YouTube Mix")
         print(f"    ✓ Created {cue_path.name}", file=sys.stderr)
-        return True
+
+        result.success = True
+        result.cue_written = True
+        return result
     except Exception as e:
-        print(f"    ✗ Error generating CUE: {e}", file=sys.stderr)
-        return False
+        msg = f"Error generating CUE: {e}"
+        print(f"    ✗ {msg}", file=sys.stderr)
+        result.add_error(msg)
+        return result
 
 
 def main() -> None:
@@ -154,8 +165,7 @@ def main() -> None:
 
     print(f"Found {len(audio_files)} audio file(s) missing CUE sheets.\n")
 
-    success = 0
-    fail = 0
+    results = []
 
     for audio_file in audio_files:
         result = process_single_file(
@@ -167,12 +177,9 @@ def main() -> None:
             max_comments=args.max_comments,
             overwrite=args.yes,
         )
-        if result:
-            success += 1
-        else:
-            fail += 1
+        results.append(result)
 
-    print(f"\nDone. {success} succeeded, {fail} failed/skipped.")
+    print("\n" + format_summary(results))
 
 
 if __name__ == "__main__":
