@@ -16,8 +16,9 @@ def get_audio_search_query(filepath: Path) -> str:
     """Extracts metadata to form a YouTube search query, falling back to filename.
     If a YouTube URL is embedded in the metadata (e.g., by yt-dlp), it returns the exact URL."""
     try:
-        from mutagen import File
         import re
+
+        from mutagen import File
 
         audio = File(filepath)
         if audio and audio.tags:
@@ -25,7 +26,8 @@ def get_audio_search_query(filepath: Path) -> str:
             for key, val in audio.tags.items():
                 text = str(val)
                 # Look for youtube video URLs
-                match = re.search(r'(https?://(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)[\w-]+)', text)
+                pattern = r"(https?://(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)[\w-]+)"
+                match = re.search(pattern, text)
                 if match:
                     return match.group(1)
     except Exception:
