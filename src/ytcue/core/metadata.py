@@ -13,7 +13,26 @@ GENERIC_ARTISTS = {"various artists", "va", "unknown"}
 
 
 def get_audio_search_query(filepath: Path) -> str:
-    """Extracts metadata to form a YouTube search query, falling back to filename."""
+    """Extracts metadata to form a YouTube search query, falling back to filename.
+    If a YouTube URL is embedded in the metadata (e.g., by yt-dlp), it returns the exact URL."""
+    try:
+        import re
+
+        from mutagen import File
+
+        audio = File(filepath)
+        if audio and audio.tags:
+            pattern = re.compile(
+                r"(https?://(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)[\w-]+)"
+            )
+            # Search all tag values for a YouTube URL
+            for val in audio.tags.values():
+                match = pattern.search(str(val))
+                if match:
+                    return match.group(1)
+    except Exception:
+        pass
+
     try:
         tag = TinyTag.get(filepath)
         artist = tag.artist or tag.albumartist
@@ -96,37 +115,36 @@ def write_grouping_tag(filepath: Path, grouping: str) -> bool:
     Supports FLAC, MP3 (ID3), M4A/MP4, and OGG/Opus.
     Returns True on success, False on failure.
     """
-    from mutagen.flac import FLAC
-    from mutagen.id3 import TIT1  # type: ignore
-    from mutagen.mp3 import MP3
-    from mutagen.mp4 import MP4
-    from mutagen.oggopus import OggOpus
-    from mutagen.oggvorbis import OggVorbis
+    import mutagen.id3
+    from mutagen import File
 
     ext = filepath.suffix.lower()
 
     try:
-        audio: Any
+        audio: Any = File(filepath)
+        if audio is None:
+            print(
+                f"Warning: Could not read metadata for {filepath.name}.",
+                file=sys.stderr,
+            )
+            return False
+
         if ext == ".flac":
-            audio = FLAC(filepath)
             audio["GROUPING"] = grouping
             audio.save()
         elif ext == ".mp3":
-            audio = MP3(filepath)
             if audio.tags is None:
                 audio.add_tags()
-            audio.tags.add(TIT1(encoding=3, text=[grouping]))  # type: ignore
+            tit1: Any = mutagen.id3.TIT1
+            audio.tags.add(tit1(encoding=3, text=[grouping]))
             audio.save()
         elif ext in (".m4a", ".aac"):
-            audio = MP4(filepath)  # type: ignore
             audio["\xa9grp"] = [grouping]
             audio.save()
         elif ext == ".opus":
-            audio = OggOpus(filepath)  # type: ignore
             audio["GROUPING"] = grouping
             audio.save()
         elif ext == ".ogg":
-            audio = OggVorbis(filepath)  # type: ignore
             audio["GROUPING"] = grouping
             audio.save()
         else:

@@ -1,5 +1,4 @@
 import re
-from typing import Optional
 
 # Standard separators for splitting track into Artist - Title
 DASH_PATTERN = r"\s+[\-\–\—\―]\s+"
@@ -137,7 +136,7 @@ def split_track_string(
     raw_text: str,
     artist_title_format: str = "auto",
     extract_feat: bool = False,
-    primary_separator: Optional[str] = None,
+    primary_separator: str | None = None,
 ) -> tuple[str, str]:
     """
     Given a raw track string (e.g. 'Robyn, Yaeji  - Beach2k20 - Yaeji Remix'),

@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 
 from ytcue.core.models import Mix
 
@@ -21,7 +20,7 @@ _CUE_FILE_TYPES = {
 }
 
 
-def _get_cue_file_type(audio_path: Optional[Path]) -> str:
+def _get_cue_file_type(audio_path: Path | None) -> str:
     """Returns the CUE FILE type keyword for the given audio file extension."""
     if audio_path is None:
         return "WAVE"

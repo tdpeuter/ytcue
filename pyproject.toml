@@ -3,7 +3,7 @@ name = "ytcue"
 version = "0.1.0"
 description = "Convert YouTube descriptions into MusicBee-compatible CUE sheets."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "yt-dlp",
     "tinytag",
@@ -33,7 +33,7 @@ build-backend = "hatchling.build"
 
 [tool.ruff]
 line-length = 100
-target-version = "py39"
+target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W", "UP", "N"]
@@ -45,7 +45,7 @@ python_files = ["test_*.py"]
 addopts = "-v --cov=src/ytcue --cov-report=term-missing"
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 strict = true
 ignore_missing_imports = true
 warn_unused_configs = true

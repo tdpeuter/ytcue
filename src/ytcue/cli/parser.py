@@ -1,7 +1,6 @@
 import argparse
 import sys
 from pathlib import Path
-from typing import Optional
 
 from ytcue.core.cue import generate_cue_sheet
 from ytcue.core.heuristics import split_track_string
@@ -22,7 +21,7 @@ def process_input(lines: list[str], format_guess: str, extract_feat: bool) -> Mi
         if " - " in raw_text:
             dash_count += 1
 
-    primary_separator: Optional[str] = None
+    primary_separator: str | None = None
     if parsed and by_count > len(parsed) * 0.6 and dash_count < len(parsed) * 0.4:
         primary_separator = "by"
 
