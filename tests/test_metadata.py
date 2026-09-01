@@ -70,3 +70,23 @@ def test_get_audio_search_query_no_tags(mock_tag):
 
     query = get_audio_search_query(Path("path/to/another_mix.mp3"))
     assert query == "another_mix"
+
+
+@patch("mutagen.File")
+def test_get_audio_search_query_embedded_url(mock_file):
+    mock_audio = MagicMock()
+    mock_audio.tags = {"PURL": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}
+    mock_file.return_value = mock_audio
+
+    query = get_audio_search_query(Path("test.m4a"))
+    assert query == "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+
+@patch("mutagen.File")
+def test_get_audio_search_query_embedded_url_comment(mock_file):
+    mock_audio = MagicMock()
+    mock_audio.tags = {"comment": "Some text https://youtu.be/dQw4w9WgXcQ?t=10 and other stuff"}
+    mock_file.return_value = mock_audio
+
+    query = get_audio_search_query(Path("test.m4a"))
+    assert query == "https://youtu.be/dQw4w9WgXcQ"
