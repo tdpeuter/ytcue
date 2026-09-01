@@ -13,7 +13,24 @@ GENERIC_ARTISTS = {"various artists", "va", "unknown"}
 
 
 def get_audio_search_query(filepath: Path) -> str:
-    """Extracts metadata to form a YouTube search query, falling back to filename."""
+    """Extracts metadata to form a YouTube search query, falling back to filename.
+    If a YouTube URL is embedded in the metadata (e.g., by yt-dlp), it returns the exact URL."""
+    try:
+        from mutagen import File
+        import re
+
+        audio = File(filepath)
+        if audio and audio.tags:
+            # Search all tag values for a youtube URL
+            for key, val in audio.tags.items():
+                text = str(val)
+                # Look for youtube video URLs
+                match = re.search(r'(https?://(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)[\w-]+)', text)
+                if match:
+                    return match.group(1)
+    except Exception:
+        pass
+
     try:
         tag = TinyTag.get(filepath)
         artist = tag.artist or tag.albumartist
