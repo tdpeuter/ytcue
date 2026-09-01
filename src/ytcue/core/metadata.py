@@ -115,8 +115,8 @@ def write_grouping_tag(filepath: Path, grouping: str) -> bool:
     Supports FLAC, MP3 (ID3), M4A/MP4, and OGG/Opus.
     Returns True on success, False on failure.
     """
-    from mutagen import File
     import mutagen.id3
+    from mutagen import File
 
     ext = filepath.suffix.lower()
 
@@ -135,8 +135,8 @@ def write_grouping_tag(filepath: Path, grouping: str) -> bool:
         elif ext == ".mp3":
             if audio.tags is None:
                 audio.add_tags()
-            TIT1: Any = mutagen.id3.TIT1
-            audio.tags.add(TIT1(encoding=3, text=[grouping]))
+            tit1: Any = mutagen.id3.TIT1
+            audio.tags.add(tit1(encoding=3, text=[grouping]))
             audio.save()
         elif ext in (".m4a", ".aac"):
             audio["\xa9grp"] = [grouping]

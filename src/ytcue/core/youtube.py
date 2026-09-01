@@ -2,7 +2,7 @@
 
 import signal
 import sys
-from typing import Any, Optional
+from typing import Any
 
 import yt_dlp
 
@@ -54,7 +54,7 @@ def fetch_video_info(
     get_comments: bool = False,
     max_comments: int = 100,
     timeout: int = COMMENT_FETCH_TIMEOUT,
-) -> Optional[dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Fetches video info from YouTube. Supports both URLs and search queries.
 
