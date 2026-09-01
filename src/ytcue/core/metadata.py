@@ -22,12 +22,12 @@ def get_audio_search_query(filepath: Path) -> str:
 
         audio = File(filepath)
         if audio and audio.tags:
-            # Search all tag values for a youtube URL
-            for key, val in audio.tags.items():
-                text = str(val)
-                # Look for youtube video URLs
-                pattern = r"(https?://(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)[\w-]+)"
-                match = re.search(pattern, text)
+            pattern = re.compile(
+                r"(https?://(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)[\w-]+)"
+            )
+            # Search all tag values for a YouTube URL
+            for val in audio.tags.values():
+                match = pattern.search(str(val))
                 if match:
                     return match.group(1)
     except Exception:
